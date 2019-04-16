@@ -1,5 +1,7 @@
 package aggregation;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.SortedSet;
@@ -11,10 +13,10 @@ import cc.kave.commons.model.events.NavigationEvent;
 public class DailyRecord {
 	
 	private LocalDate date;
-	private IntervalBuilder activityRecord = new IntervalBuilder(60000);
-	private SortedSet<Pair<Long,Boolean>> testingState = new TreeSet<Pair<Long,Boolean>>(new Comparator<Pair<Long,Boolean>>() {
+	private IntervalBuilder activityRecord = new IntervalBuilder(Duration.ofSeconds(60), Duration.ofSeconds(5));
+	private SortedSet<Pair<Instant,Boolean>> testingState = new TreeSet<Pair<Instant,Boolean>>(new Comparator<Pair<Instant,Boolean>>() {
 		@Override
-		public int compare(Pair<Long,Boolean> o1, Pair<Long,Boolean> o2) {
+		public int compare(Pair<Instant,Boolean> o1, Pair<Instant,Boolean> o2) {
 			return o1.getLeft().compareTo(o2.getLeft());
 		}
 	});
@@ -24,7 +26,7 @@ public class DailyRecord {
 	}
 	
 	public void logEvent(IDEEvent e) {
-		final long millisecondOfDay = e.getTriggeredAt().toInstant().toEpochMilli() % (24*3600*1000);
+		final Instant millisecondOfDay = e.getTriggeredAt().toInstant();
 		logActivity(millisecondOfDay);
 		
 		//changes to testingState
@@ -33,11 +35,11 @@ public class DailyRecord {
 			final String fileName = n.ActiveDocument.getFileName();
 			final boolean isTestingFile = fileName.endsWith("Test.cs") || fileName.endsWith("Tests.cs");
 
-			testingState.add(new Pair<Long,Boolean>(millisecondOfDay,isTestingFile));
+			testingState.add(new Pair<Instant,Boolean>(millisecondOfDay,isTestingFile));
 		}
 	}
 	
-	public void logActivity(long milliOfDay) {
+	public void logActivity(Instant milliOfDay) {
 		activityRecord.add(milliOfDay);
 	}
 	

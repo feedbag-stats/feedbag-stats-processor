@@ -21,9 +21,7 @@ import cc.kave.commons.utils.io.Logger;
 import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
 import cc.kave.rsse.calls.utils.json.JsonUtilsCcKaveRsseCalls;
-import examples.CountEventTypeExample;
 import examples.GettingStarted;
-import examples.GettingStartedContexts;
 import examples.rsse.calls.BMNEvaluation;
 import examples.rsse.calls.BMNMining;
 
@@ -81,7 +79,7 @@ public class RunMe {
 
 		double gb = 1024 * 1024 * 1024;
 		log("Make sure that your memory limit is increased, using at least 8GB is recommended to process the KaVE datasets...  (-Xmx8G)");
-		log("Current max. memory: %.1f GB", Runtime.getRuntime().maxMemory() / gb);
+		log("Current max. memory: %.1f GB\n", Runtime.getRuntime().maxMemory() / gb);
 
 		JsonUtilsCcKaveRsseCalls.registerJsonAdapters();
 	}
