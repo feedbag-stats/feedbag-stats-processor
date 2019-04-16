@@ -31,7 +31,11 @@ public class SessionRecord {
 	}
 	
 	public String toSVG() {
-		return "<svg></svg>";
+		String svg = "";
+		for(DailyRecord r : dailyRecords.values()) {
+			svg+= r.toSVG()+"\n";
+		}
+		return svg;
 	}
 	
 }

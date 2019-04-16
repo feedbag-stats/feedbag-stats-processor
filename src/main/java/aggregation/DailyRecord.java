@@ -94,4 +94,28 @@ public class DailyRecord {
 		//return date.toString() +"   "+activityRecord.toString() + testingState.toString();
 		return date.toString() +"   "+getTestingIntervals().toString();
 	}
+	
+	public String toSVG() {
+		int timelineWidth = 500;
+		int textWidth = 40;
+		double milliPerDay = (24.0*60*60*1000);
+		double widthPerMilli = timelineWidth/milliPerDay;
+		String svg = "<svg width=\""+timelineWidth+"\" height=\"20\">";
+		
+		//date
+		svg += "<text x=\"0\" y=\"13\" fontSize=\"6\" lengthAdjust=\"spacingAndGlyphs\" textLength=\""+textWidth+"\">"+date.toString()+"</text>";
+		
+		//active intervals
+		for(Pair<Instant,Instant> i : activityRecord.getIntervals()) {
+			svg += "<rect x=\""+(textWidth+(i.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"5\" width=\""+(i.getRight().toEpochMilli() - i.getLeft().toEpochMilli())*widthPerMilli+"\" height=\"10\" />";
+		}
+			
+		//testing intervals
+		for(Pair<Pair<Instant, Instant>, Boolean> i : getTestingIntervals()) {
+			if(i.getRight())
+			svg += "<rect x=\""+(textWidth+(i.getLeft().getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"10\" width=\""+(i.getLeft().getRight().toEpochMilli() - i.getLeft().getLeft().toEpochMilli())*widthPerMilli+"\" height=\"5\" fill=\"#30F030\" />";
+		}
+			
+		return svg + "</svg>";
+	}
 }
