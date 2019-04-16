@@ -3,13 +3,20 @@ package aggregation;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Comparator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class IntervalBuilder {
+	public static final Comparator<Pair<Instant,Instant>> INTERVAL_COMP = new Comparator<Pair<Instant,Instant>>() {
+		@Override
+		public int compare(Pair<Instant, Instant> o1, Pair<Instant, Instant> o2) {
+			return o1.getLeft().compareTo(o2.getLeft());
+		}
+	};
 	private final TemporalAmount timeoutInterval;
 	private final TemporalAmount minDuration;
-	private Set<Pair<Instant,Instant>> intervals = new HashSet<>();
+	private SortedSet<Pair<Instant,Instant>> intervals = new TreeSet<>(INTERVAL_COMP);
 	
 	public IntervalBuilder (TemporalAmount timeoutInterval) {
 		this(timeoutInterval, Duration.ZERO);
@@ -34,13 +41,13 @@ public class IntervalBuilder {
 		}
 	}
 	
-	public Set<Pair<Instant,Instant>> getIntervals() {
+	public SortedSet<Pair<Instant,Instant>> getIntervals() {
 		fuseIntervals();
 		return getLongEnoughIntervals();
 	}
 
-	private Set<Pair<Instant, Instant>> getLongEnoughIntervals() {
-		Set<Pair<Instant,Instant>> result = new HashSet<>();
+	private SortedSet<Pair<Instant, Instant>> getLongEnoughIntervals() {
+		SortedSet<Pair<Instant,Instant>> result = new TreeSet<>(INTERVAL_COMP);
 		for(Pair<Instant,Instant> interval : intervals) {
 			if(interval.getRight().minus(minDuration).isAfter(interval.getLeft())) result.add(interval);
 		}
@@ -48,7 +55,7 @@ public class IntervalBuilder {
 	}
 
 	private void fuseIntervals() {
-		Set<Pair<Instant,Instant>> fusedIntervals = new HashSet<>();
+		SortedSet<Pair<Instant,Instant>> fusedIntervals = new TreeSet<>(INTERVAL_COMP);
 		
 		for(Pair<Instant,Instant> p : intervals) {
 			boolean isInsideExistingInterval = false;
@@ -94,11 +101,11 @@ public class IntervalBuilder {
 		return getLongEnoughIntervals().toString();
 	}
 	
-	private Instant min(Instant a, Instant b) {
+	public static Instant min(Instant a, Instant b) {
 		return a.isBefore(b) ? a : b;
 	}
 	
-	private Instant max(Instant a, Instant b) {
+	public static Instant max(Instant a, Instant b) {
 		return a.isAfter(b) ? a : b;
 	}
 }
