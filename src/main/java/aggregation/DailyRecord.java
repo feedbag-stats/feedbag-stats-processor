@@ -13,6 +13,10 @@ import com.google.common.collect.PeekingIterator;
 
 import cc.kave.commons.model.events.IDEEvent;
 import cc.kave.commons.model.events.NavigationEvent;
+import cc.kave.commons.model.events.testrunevents.TestCaseResult;
+import cc.kave.commons.model.events.testrunevents.TestRunEvent;
+import cc.kave.commons.model.events.visualstudio.DebuggerEvent;
+import cc.kave.commons.model.events.visualstudio.EditEvent;
 
 public class DailyRecord {
 	
@@ -25,24 +29,44 @@ public class DailyRecord {
 	
 	private LocalDate date;
 	private IntervalBuilder activityRecord = new IntervalBuilder(Duration.ofSeconds(60), Duration.ofSeconds(5));
+	private IntervalBuilder writingRecord = new IntervalBuilder(Duration.ofSeconds(50), Duration.ofSeconds(15));
+	private IntervalBuilder debuggingRecord = new IntervalBuilder(Duration.ofSeconds(60), Duration.ofSeconds(5));
+	private IntervalBuilder testruns = new IntervalBuilder(Duration.ofSeconds(0), Duration.ofSeconds(0));
 	private SortedSet<Pair<Instant,Boolean>> testingState = new TreeSet<Pair<Instant,Boolean>>(TAGGED_INSTANT_COMPARATOR);
+	
 	
 	public DailyRecord(LocalDate date) {
 		this.date = date;
 	}
 	
 	public void logEvent(IDEEvent e) {
-		final Instant millisecondOfDay = e.getTriggeredAt().toInstant();
-		logActivity(millisecondOfDay);
+		
+		//add event to active period
+		final Instant triggeredAt = e.getTriggeredAt().toInstant();
+		logActivity(triggeredAt);
 		
 		//changes to testingState
 		if(e instanceof NavigationEvent) {
-			final NavigationEvent n = (NavigationEvent)e;
-			final String fileName = n.ActiveDocument.getFileName();
-			final boolean isTestingFile = fileName.endsWith("Test.cs") || fileName.endsWith("Tests.cs");
-
-			testingState.add(new Pair<Instant,Boolean>(millisecondOfDay,isTestingFile));
+			NavigationEvent n = (NavigationEvent)e;
+			String fileName = n.ActiveDocument.getFileName();
+			boolean isTestingFile = fileName.endsWith("Test.cs") || fileName.endsWith("Tests.cs");
+			testingState.add(new Pair<Instant,Boolean>(triggeredAt,isTestingFile));
+		} else if(e instanceof EditEvent) {
+			//Programmer is in writing mode
+			writingRecord.add(e.TriggeredAt.toInstant());
+		} else if (e instanceof DebuggerEvent) {
+			//Programmer is in debugging mode
+			debuggingRecord.add(e.TriggeredAt.toInstant());
+		} else if (e instanceof TestRunEvent) {
+			//add test intervals
+			TestRunEvent t = (TestRunEvent) e;
+			for(TestCaseResult i : t.Tests) {
+				testruns.add(new Pair<Instant, Instant>(t.TriggeredAt.toInstant(), t.TriggeredAt.toInstant().plus(i.Duration)));
+			}
+			
 		}
+		
+		
 	}
 	
 	public SortedSet<Pair<Pair<Instant,Instant>,Boolean>> getTestingIntervals() {
@@ -95,27 +119,54 @@ public class DailyRecord {
 		return date.toString() +"   "+getTestingIntervals().toString();
 	}
 	
-	public String toSVG() {
-		int timelineWidth = 500;
-		int textWidth = 40;
+	//returns datestring + svg-string
+	public Pair<String,String> toSVG() {
+		int timelineWidth = 5000;
+		int textWidth = 80;
 		double milliPerDay = (24.0*60*60*1000);
 		double widthPerMilli = timelineWidth/milliPerDay;
-		String svg = "<svg width=\""+timelineWidth+"\" height=\"20\">";
+		String svg = "<svg width=\""+(timelineWidth+textWidth)+"\" height=\"200\">";
 		
 		//date
 		svg += "<text x=\"0\" y=\"13\" fontSize=\"6\" lengthAdjust=\"spacingAndGlyphs\" textLength=\""+textWidth+"\">"+date.toString()+"</text>";
+		svg += "<rect x='"+(textWidth)+"' y='0' width='2' height='200' fill='#ff0000' />";
+		svg += "<rect x='"+(textWidth+(milliPerDay*widthPerMilli))+"' y='0' width='2' height='200' fill='#ff0000' />";
 		
 		//active intervals
 		for(Pair<Instant,Instant> i : activityRecord.getIntervals()) {
-			svg += "<rect x=\""+(textWidth+(i.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"5\" width=\""+(i.getRight().toEpochMilli() - i.getLeft().toEpochMilli())*widthPerMilli+"\" height=\"10\" />";
+			svg += "<rect x=\""+(textWidth+(i.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"50\" width=\""+(i.getRight().toEpochMilli() - i.getLeft().toEpochMilli())*widthPerMilli+"\" height=\"100\" />";
 		}
 			
 		//testing intervals
 		for(Pair<Pair<Instant, Instant>, Boolean> i : getTestingIntervals()) {
 			if(i.getRight())
-			svg += "<rect x=\""+(textWidth+(i.getLeft().getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"10\" width=\""+(i.getLeft().getRight().toEpochMilli() - i.getLeft().getLeft().toEpochMilli())*widthPerMilli+"\" height=\"5\" fill=\"#30F030\" />";
+			svg += "<rect x=\""+(textWidth+(i.getLeft().getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"100\" width=\""+(i.getLeft().getRight().toEpochMilli() - i.getLeft().getLeft().toEpochMilli())*widthPerMilli+"\" height=\"50\" fill=\"#30F030\" fill-opacity=\"0.4\" />";
+		}
+		
+		//testruns
+		for(Pair<Instant,Instant> p : testruns.getIntervals()) {
+			long milliDuration = p.getRight().toEpochMilli() - p.getLeft().toEpochMilli();
+			double px_width = milliDuration*widthPerMilli;
+			String widthString = String.format("%.12f", (px_width>1 ? px_width : 1));
+			svg += "<rect x=\""+(textWidth+(p.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"50\" width=\""+widthString+"\" height=\"20\" fill=\"#30F030\" />";
+		}
+		
+		//writing
+		for(Pair<Instant,Instant> w : writingRecord.getIntervals()) {
+			long milliDuration = w.getRight().toEpochMilli() - w.getLeft().toEpochMilli();
+			double px_width = milliDuration*widthPerMilli;
+			String widthString = String.format("%.12f", (px_width>1 ? px_width : 1));
+			svg += "<rect x=\""+(textWidth+(w.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"70\" width=\""+widthString+"\" height=\"30\" fill=\"#3030F0\" />";
+		}
+		
+		//debugging
+		for(Pair<Instant,Instant> d : debuggingRecord.getIntervals()) {
+			long milliDuration = d.getRight().toEpochMilli() - d.getLeft().toEpochMilli();
+			double px_width = milliDuration*widthPerMilli;
+			String widthString = String.format("%.12f", (px_width>1 ? px_width : 1));
+			svg += "<rect x=\""+(textWidth+(d.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"100\" width=\""+widthString+"\" height=\"20\" fill=\"#F03030\" />";
 		}
 			
-		return svg + "</svg>";
+		return new Pair<String,String>(date.toString(), svg + "</svg>");
 	}
 }

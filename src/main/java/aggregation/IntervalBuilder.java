@@ -41,6 +41,10 @@ public class IntervalBuilder {
 		}
 	}
 	
+	public void add(Pair<Instant,Instant> interval) {
+		intervals.add(interval);
+	}
+	
 	public SortedSet<Pair<Instant,Instant>> getIntervals() {
 		fuseIntervals();
 		return getLongEnoughIntervals();

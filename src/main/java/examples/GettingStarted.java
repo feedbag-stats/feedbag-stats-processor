@@ -16,8 +16,12 @@
 package examples;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
+import aggregation.Pair;
 import aggregation.SessionRecord;
 import cc.kave.commons.model.events.IDEEvent;
 import cc.kave.commons.utils.io.IReadingArchive;
@@ -79,7 +83,21 @@ public class GettingStarted {
 			
 			System.out.printf("%s contains %d events\n", userZip, numProcessedEvents);
 			System.out.print(record.toString());
-			System.out.println(record.toSVG());
+			
+			System.out.println("Working Directory = " +
+		              System.getProperty("user.dir"));
+			//write svgs
+			for(Pair<String, String> p : record.toSVGs()) {
+				if(p.getRight().length() < 3000) continue; //skip uninteresting ones
+				
+				PrintWriter writer = new PrintWriter("svg/"+p.getLeft()+".svg", "UTF-8");
+				writer.println(p.getRight());
+				writer.close();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 }

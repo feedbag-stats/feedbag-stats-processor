@@ -1,6 +1,7 @@
 package aggregation;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,12 +31,13 @@ public class SessionRecord {
 		return s + "]\n";
 	}
 	
-	public String toSVG() {
-		String svg = "";
+	public ArrayList<Pair<String,String>> toSVGs() {
+		ArrayList<Pair<String,String>> svgs = new ArrayList<>();
 		for(DailyRecord r : dailyRecords.values()) {
-			svg+= r.toSVG()+"\n";
+			Pair<String, String> pair = r.toSVG();
+			svgs.add(new Pair<String,String>(sessID+"-"+pair.getLeft(), pair.getRight()));
 		}
-		return svg;
+		return svgs;
 	}
 	
 }
