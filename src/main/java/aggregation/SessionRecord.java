@@ -31,6 +31,14 @@ public class SessionRecord {
 		return s + "]\n";
 	}
 	
+	public String toJSON() {
+		String s = "Session " + sessID + "[\n";
+		for (DailyRecord record : dailyRecords.values()) {
+			s += "    " + record.toJSON() + "\n";
+		}
+		return s + "]\n";
+	}
+	
 	public ArrayList<Pair<String,String>> toSVGs() {
 		ArrayList<Pair<String,String>> svgs = new ArrayList<>();
 		for(DailyRecord r : dailyRecords.values()) {

@@ -69,13 +69,8 @@ public class DailyRecord {
 		
 	}
 	
-	public SortedSet<Pair<Pair<Instant,Instant>,Boolean>> getTestingIntervals() {
-		SortedSet<Pair<Pair<Instant,Instant>,Boolean>> testingIntervals = new TreeSet<>(new Comparator<Pair<Pair<Instant,Instant>,Boolean>>() {
-			@Override
-			public int compare(Pair<Pair<Instant,Instant>,Boolean> o1, Pair<Pair<Instant,Instant>,Boolean> o2) {
-				return o1.getLeft().getLeft().compareTo(o2.getLeft().getLeft());
-			}
-		});
+	public SortedSet<Pair<Instant,Instant>> getTestingIntervals() {
+		SortedSet<Pair<Instant,Instant>> testingIntervals = new TreeSet<>(IntervalBuilder.INTERVAL_COMP);
 		Iterator<Pair<Instant, Instant>> activeIntervals = activityRecord.getIntervals().iterator();
 		PeekingIterator<Pair<Instant,Boolean>> testingStateChanges = Iterators.peekingIterator(testingState.iterator());
 		Pair<Instant,Boolean> currentTestingState = new Pair<>(Instant.ofEpochMilli(0),false);
@@ -100,8 +95,9 @@ public class DailyRecord {
 			PeekingIterator<Pair<Instant,Boolean>> periodIt = Iterators.peekingIterator(periods.iterator());
 			while(periodIt.hasNext()) {
 				Pair<Instant,Boolean> start = periodIt.next();
+				if(!start.getRight()) continue;
 				Instant end = periodIt.hasNext() ? periodIt.peek().getLeft() : i.getRight();
-				testingIntervals.add(new Pair<Pair<Instant,Instant>,Boolean>(new Pair<Instant,Instant>(start.getLeft(),end), start.getRight()));
+				testingIntervals.add(new Pair<Instant,Instant>(start.getLeft(),end));
 			}
 			
 		}
@@ -123,50 +119,79 @@ public class DailyRecord {
 	public Pair<String,String> toSVG() {
 		int timelineWidth = 5000;
 		int textWidth = 80;
-		double milliPerDay = (24.0*60*60*1000);
-		double widthPerMilli = timelineWidth/milliPerDay;
+		
+		
 		String svg = "<svg width=\""+(timelineWidth+textWidth)+"\" height=\"200\">";
 		
 		//date
 		svg += "<text x=\"0\" y=\"13\" fontSize=\"6\" lengthAdjust=\"spacingAndGlyphs\" textLength=\""+textWidth+"\">"+date.toString()+"</text>";
-		svg += "<rect x='"+(textWidth)+"' y='0' width='2' height='200' fill='#ff0000' />";
-		svg += "<rect x='"+(textWidth+(milliPerDay*widthPerMilli))+"' y='0' width='2' height='200' fill='#ff0000' />";
 		
 		//active intervals
-		for(Pair<Instant,Instant> i : activityRecord.getIntervals()) {
-			svg += "<rect x=\""+(textWidth+(i.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"50\" width=\""+(i.getRight().toEpochMilli() - i.getLeft().toEpochMilli())*widthPerMilli+"\" height=\"100\" />";
-		}
+		svg += intervalsToSVG(activityRecord.getIntervals(), 50, 100, textWidth, "#000000", 0.1, timelineWidth);
 			
 		//testing intervals
-		for(Pair<Pair<Instant, Instant>, Boolean> i : getTestingIntervals()) {
-			if(i.getRight())
-			svg += "<rect x=\""+(textWidth+(i.getLeft().getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"100\" width=\""+(i.getLeft().getRight().toEpochMilli() - i.getLeft().getLeft().toEpochMilli())*widthPerMilli+"\" height=\"50\" fill=\"#30F030\" fill-opacity=\"0.4\" />";
-		}
+		svg += intervalsToSVG(getTestingIntervals(), 100, 50, textWidth, "#30F030\" fill-opacity=\"0.4", 0.1, timelineWidth);
 		
 		//testruns
-		for(Pair<Instant,Instant> p : testruns.getIntervals()) {
-			long milliDuration = p.getRight().toEpochMilli() - p.getLeft().toEpochMilli();
-			double px_width = milliDuration*widthPerMilli;
-			String widthString = String.format("%.12f", (px_width>1 ? px_width : 1));
-			svg += "<rect x=\""+(textWidth+(p.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"50\" width=\""+widthString+"\" height=\"20\" fill=\"#30F030\" />";
-		}
+		svg += intervalsToSVG(testruns.getIntervals(), 55, 10, textWidth, "#30F030", 1, timelineWidth);
 		
 		//writing
-		for(Pair<Instant,Instant> w : writingRecord.getIntervals()) {
-			long milliDuration = w.getRight().toEpochMilli() - w.getLeft().toEpochMilli();
-			double px_width = milliDuration*widthPerMilli;
-			String widthString = String.format("%.12f", (px_width>1 ? px_width : 1));
-			svg += "<rect x=\""+(textWidth+(w.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"70\" width=\""+widthString+"\" height=\"30\" fill=\"#3030F0\" />";
-		}
+		svg += intervalsToSVG(writingRecord.getIntervals(), 70, 30, textWidth, "#3030F0", 1, timelineWidth);
 		
 		//debugging
-		for(Pair<Instant,Instant> d : debuggingRecord.getIntervals()) {
-			long milliDuration = d.getRight().toEpochMilli() - d.getLeft().toEpochMilli();
-			double px_width = milliDuration*widthPerMilli;
-			String widthString = String.format("%.12f", (px_width>1 ? px_width : 1));
-			svg += "<rect x=\""+(textWidth+(d.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\"100\" width=\""+widthString+"\" height=\"20\" fill=\"#F03030\" />";
-		}
+		svg += intervalsToSVG(debuggingRecord.getIntervals(), 100, 20, textWidth, "#F03030", 1, timelineWidth);
 			
 		return new Pair<String,String>(date.toString(), svg + "</svg>");
+	}
+	
+	private String intervalsToSVG(SortedSet<Pair<Instant,Instant>> intervals, int yOffset, int height, int textWidth, String colour, double minBarWidth, int timelineWidth) {
+		double milliPerDay = (24.0*60*60*1000);
+		double widthPerMilli = timelineWidth/milliPerDay;
+		String svg = "";
+		for(Pair<Instant,Instant> i : intervals) {
+			long milliDuration = i.getRight().toEpochMilli() - i.getLeft().toEpochMilli();
+			double px_width = milliDuration*widthPerMilli;
+			String widthString = String.format("%.12f", (px_width>minBarWidth ? px_width : minBarWidth));
+			svg += "<rect x=\""+(textWidth+(i.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\""+yOffset+"\" width=\""+widthString+"\" height=\""+height+"\" fill=\""+colour+"\" />";
+		}
+		return svg;
+	}
+	
+	public String toJSON() {
+		String json = "{";
+		
+		json += "\"date\":\""+date.toString()+"\",";
+		
+		//active intervals
+		json += "\"activeIntervals\":"+intervalsToJSON(activityRecord.getIntervals())+",";
+			
+		//testing intervals
+		json += "\"testingIntervals\":"+intervalsToJSON(getTestingIntervals())+",";
+		
+		//testruns
+		json += "\"testrunIntervals\":"+intervalsToJSON(testruns.getIntervals())+",";
+		
+		//writing
+		json += "\"writingIntervals\":"+intervalsToJSON(writingRecord.getIntervals())+",";
+		
+		//debugging
+		json += "\"debuggingIntervals\":"+intervalsToJSON(debuggingRecord.getIntervals());
+		
+		
+		return json + "}";
+	}
+	
+	private String intervalsToJSON(SortedSet<Pair<Instant,Instant>> intervals) {
+		String json = "[";
+		boolean first = true;
+		for(Pair<Instant,Instant> i : intervals) {
+			if(!first) {
+				json+=",";
+			} else {
+				first = false;
+			}
+			json += "{\"begin\":\""+i.getLeft().toString()+"\",\"end\":\""+i.getRight().toString()+"\"}";
+		}
+		return json + "]";
 	}
 }

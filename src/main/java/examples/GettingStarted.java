@@ -82,7 +82,7 @@ public class GettingStarted {
 			}
 			
 			System.out.printf("%s contains %d events\n", userZip, numProcessedEvents);
-			System.out.print(record.toString());
+			System.out.print(record.toJSON());
 			
 			System.out.println("Working Directory = " +
 		              System.getProperty("user.dir"));
