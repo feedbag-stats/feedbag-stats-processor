@@ -13,108 +13,87 @@ import com.google.common.collect.PeekingIterator;
 
 import cc.kave.commons.model.events.IDEEvent;
 import cc.kave.commons.model.events.NavigationEvent;
+import cc.kave.commons.model.events.completionevents.CompletionEvent;
 import cc.kave.commons.model.events.testrunevents.TestCaseResult;
 import cc.kave.commons.model.events.testrunevents.TestRunEvent;
 import cc.kave.commons.model.events.visualstudio.DebuggerEvent;
 import cc.kave.commons.model.events.visualstudio.EditEvent;
+import cc.kave.commons.model.ssts.IExpression;
+import cc.kave.commons.model.ssts.IStatement;
+import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
+import cc.kave.commons.model.ssts.impl.expressions.assignable.CompletionExpression;
+import cc.kave.commons.model.ssts.impl.expressions.assignable.InvocationExpression;
+import cc.kave.commons.model.ssts.statements.IExpressionStatement;
 
 public class DailyRecord {
 	
-	public static final Comparator<Pair<Instant,Boolean>> TAGGED_INSTANT_COMPARATOR = new Comparator<Pair<Instant,Boolean>>() {
-		@Override
-		public int compare(Pair<Instant,Boolean> o1, Pair<Instant,Boolean> o2) {
-			return o1.getLeft().compareTo(o2.getLeft());
-		}
-	};
-	
+	private String userid;
 	private LocalDate date;
-	private IntervalBuilder activityRecord = new IntervalBuilder(Duration.ofSeconds(60), Duration.ofSeconds(5));
-	private IntervalBuilder writingRecord = new IntervalBuilder(Duration.ofSeconds(50), Duration.ofSeconds(15));
-	private IntervalBuilder debuggingRecord = new IntervalBuilder(Duration.ofSeconds(60), Duration.ofSeconds(5));
-	private IntervalBuilder testruns = new IntervalBuilder(Duration.ofSeconds(0), Duration.ofSeconds(0));
-	private SortedSet<Pair<Instant,Boolean>> testingState = new TreeSet<Pair<Instant,Boolean>>(TAGGED_INSTANT_COMPARATOR);
+	private IntervalBuilder activityRecord = new IntervalBuilder();
 	
 	
-	public DailyRecord(LocalDate date) {
+	public DailyRecord(LocalDate date, String userid) {
 		this.date = date;
+		this.userid = userid;
 	}
 	
 	public void logEvent(IDEEvent e) {
 		
 		//add event to active period
 		final Instant triggeredAt = e.getTriggeredAt().toInstant();
-		logActivity(triggeredAt);
+		activityRecord.add(triggeredAt, ActivityType.ACTIVE);
 		
 		//changes to testingState
 		if(e instanceof NavigationEvent) {
 			NavigationEvent n = (NavigationEvent)e;
 			String fileName = n.ActiveDocument.getFileName();
 			boolean isTestingFile = fileName.endsWith("Test.cs") || fileName.endsWith("Tests.cs");
-			testingState.add(new Pair<Instant,Boolean>(triggeredAt,isTestingFile));
+			activityRecord.add(triggeredAt,isTestingFile);
 		} else if(e instanceof EditEvent) {
 			//Programmer is in writing mode
-			writingRecord.add(e.TriggeredAt.toInstant());
+			activityRecord.add(e.TriggeredAt.toInstant(), ActivityType.WRITE);
 		} else if (e instanceof DebuggerEvent) {
 			//Programmer is in debugging mode
-			debuggingRecord.add(e.TriggeredAt.toInstant());
+			activityRecord.add(e.TriggeredAt.toInstant(), ActivityType.DEBUG);
 		} else if (e instanceof TestRunEvent) {
 			//add test intervals
 			TestRunEvent t = (TestRunEvent) e;
 			for(TestCaseResult i : t.Tests) {
-				testruns.add(new Pair<Instant, Instant>(t.TriggeredAt.toInstant(), t.TriggeredAt.toInstant().plus(i.Duration)));
+				activityRecord.add(new ActivityInterval(t.TriggeredAt.toInstant(), t.TriggeredAt.toInstant().plus(i.Duration), ActivityType.TESTRUN));
 			}
 			
+		} else if (e instanceof CompletionEvent) {
+			CompletionEvent c = (CompletionEvent) e;
+			//System.out.println(c.toString());
+			//System.out.println(c.getContext().getSST().getMethods().toString());
+			for (IMethodDeclaration s : c.getContext().getSST().getMethods()) {
+				//containsTestingMethod(s);
+			}
 		}
 		
 		
 	}
 	
-	public SortedSet<Pair<Instant,Instant>> getTestingIntervals() {
-		SortedSet<Pair<Instant,Instant>> testingIntervals = new TreeSet<>(IntervalBuilder.INTERVAL_COMP);
-		Iterator<Pair<Instant, Instant>> activeIntervals = activityRecord.getIntervals().iterator();
-		PeekingIterator<Pair<Instant,Boolean>> testingStateChanges = Iterators.peekingIterator(testingState.iterator());
-		Pair<Instant,Boolean> currentTestingState = new Pair<>(Instant.ofEpochMilli(0),false);
-		
-		//go through all intervals where we had activity
-		while(activeIntervals.hasNext()) {
-			Pair<Instant, Instant> i = activeIntervals.next();
-			//forward testing state changes until we get to the current point in time
-			while(testingStateChanges.hasNext() && testingStateChanges.peek().getLeft().isBefore(i.getLeft())) {
-				currentTestingState = testingStateChanges.next();
+	private boolean containsTestingMethod(IMethodDeclaration method) {
+		for (IStatement s : method.getBody()) {
+			try {
+				if (s instanceof IExpressionStatement) {
+					IExpression e = ((IExpressionStatement) s).getExpression();
+					if (e instanceof InvocationExpression) {
+						System.out.println(((InvocationExpression)e).getMethodName().getFullName().contains("NUnit"));
+					} else if (e instanceof CompletionExpression) {
+						System.out.println(((CompletionExpression)e).getTypeReference().getFullName().contains("NUnit"));
+					} else {
+						System.out.println(((IExpressionStatement)e).getExpression());
+					}
+				}
+			} catch (Exception e) {
+				// could not get name, therefore we assume it's no test
 			}
-			
-			//create tagged instants for every new testing state change
-			TreeSet<Pair<Instant,Boolean>> periods = new TreeSet<>(TAGGED_INSTANT_COMPARATOR);
-			periods.add(new Pair<Instant,Boolean>(i.getLeft(),currentTestingState.getRight()));
-			while(testingStateChanges.hasNext() && testingStateChanges.peek().getLeft().isBefore(i.getRight())) {
-				currentTestingState = testingStateChanges.next();
-				periods.add(currentTestingState);
-			}
-			
-			//make tagged periods out of tagged instants
-			PeekingIterator<Pair<Instant,Boolean>> periodIt = Iterators.peekingIterator(periods.iterator());
-			while(periodIt.hasNext()) {
-				Pair<Instant,Boolean> start = periodIt.next();
-				if(!start.getRight()) continue;
-				Instant end = periodIt.hasNext() ? periodIt.peek().getLeft() : i.getRight();
-				testingIntervals.add(new Pair<Instant,Instant>(start.getLeft(),end));
-			}
-			
 		}
-		
-		return testingIntervals;
-		
+		return false;
 	}
-	
-	public void logActivity(Instant milliOfDay) {
-		activityRecord.add(milliOfDay);
-	}
-	
-	public String toString() {
-		//return date.toString() +"   "+activityRecord.toString() + testingState.toString();
-		return date.toString() +"   "+getTestingIntervals().toString();
-	}
-	
+
 	//returns datestring + svg-string
 	public Pair<String,String> toSVG() {
 		int timelineWidth = 5000;
@@ -126,33 +105,21 @@ public class DailyRecord {
 		//date
 		svg += "<text x=\"0\" y=\"13\" fontSize=\"6\" lengthAdjust=\"spacingAndGlyphs\" textLength=\""+textWidth+"\">"+date.toString()+"</text>";
 		
-		//active intervals
-		svg += intervalsToSVG(activityRecord.getIntervals(), 50, 100, textWidth, "#000000", 0.1, timelineWidth);
-			
-		//testing intervals
-		svg += intervalsToSVG(getTestingIntervals(), 100, 50, textWidth, "#30F030\" fill-opacity=\"0.4", 0.1, timelineWidth);
 		
-		//testruns
-		svg += intervalsToSVG(testruns.getIntervals(), 55, 10, textWidth, "#30F030", 1, timelineWidth);
-		
-		//writing
-		svg += intervalsToSVG(writingRecord.getIntervals(), 70, 30, textWidth, "#3030F0", 1, timelineWidth);
-		
-		//debugging
-		svg += intervalsToSVG(debuggingRecord.getIntervals(), 100, 20, textWidth, "#F03030", 1, timelineWidth);
+		svg += intervalsToSVG(activityRecord.getIntervals(), textWidth, 0.1, timelineWidth);
 			
 		return new Pair<String,String>(date.toString(), svg + "</svg>");
 	}
 	
-	private String intervalsToSVG(SortedSet<Pair<Instant,Instant>> intervals, int yOffset, int height, int textWidth, String colour, double minBarWidth, int timelineWidth) {
+	private String intervalsToSVG(SortedSet<ActivityInterval> intervals, int textWidth, double minBarWidth, int timelineWidth) {
 		double milliPerDay = (24.0*60*60*1000);
 		double widthPerMilli = timelineWidth/milliPerDay;
 		String svg = "";
-		for(Pair<Instant,Instant> i : intervals) {
-			long milliDuration = i.getRight().toEpochMilli() - i.getLeft().toEpochMilli();
+		for(ActivityInterval i : intervals) {
+			long milliDuration = i.end().toEpochMilli() - i.begin().toEpochMilli();
 			double px_width = milliDuration*widthPerMilli;
 			String widthString = String.format("%.12f", (px_width>minBarWidth ? px_width : minBarWidth));
-			svg += "<rect x=\""+(textWidth+(i.getLeft().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\""+yOffset+"\" width=\""+widthString+"\" height=\""+height+"\" fill=\""+colour+"\" />";
+			svg += "<rect x=\""+(textWidth+(i.begin().toEpochMilli()%milliPerDay)*widthPerMilli)+"\" y=\""+i.getType().svgYOffset()+"\" width=\""+widthString+"\" height=\""+i.getType().svgHeight()+"\" fill=\""+i.getType().svgColour()+"\" />";
 		}
 		return svg;
 	}
@@ -163,35 +130,24 @@ public class DailyRecord {
 		json += "\"date\":\""+date.toString()+"\",";
 		
 		//active intervals
-		json += "\"activeIntervals\":"+intervalsToJSON(activityRecord.getIntervals())+",";
-			
-		//testing intervals
-		json += "\"testingIntervals\":"+intervalsToJSON(getTestingIntervals())+",";
-		
-		//testruns
-		json += "\"testrunIntervals\":"+intervalsToJSON(testruns.getIntervals())+",";
-		
-		//writing
-		json += "\"writingIntervals\":"+intervalsToJSON(writingRecord.getIntervals())+",";
-		
-		//debugging
-		json += "\"debuggingIntervals\":"+intervalsToJSON(debuggingRecord.getIntervals());
+		json += "\"intervals\":["+intervalsToJSON(activityRecord.getIntervals())+"]";
 		
 		
 		return json + "}";
 	}
 	
-	private String intervalsToJSON(SortedSet<Pair<Instant,Instant>> intervals) {
-		String json = "[";
+	//return format: {begin,end,user,type},{begin,end,user,type},...
+	private String intervalsToJSON(SortedSet<ActivityInterval> intervals) {
+		String json = "";
 		boolean first = true;
-		for(Pair<Instant,Instant> i : intervals) {
+		for(ActivityInterval i : intervals) {
 			if(!first) {
 				json+=",";
 			} else {
 				first = false;
 			}
-			json += "{\"begin\":\""+i.getLeft().toString()+"\",\"end\":\""+i.getRight().toString()+"\"}";
+			json += "{\"begin\":\""+i.begin().toString()+"\",\"end\":\""+i.end().toString()+"\",\"user\"=\""+userid+"\",\"type\"=\""+i.getType().toString()+"\"}";
 		}
-		return json + "]";
+		return json;
 	}
 }

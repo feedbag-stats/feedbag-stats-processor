@@ -18,7 +18,7 @@ public class SessionRecord {
 	
 	public void addEvent(IDEEvent e) {
 		LocalDate date = e.TriggeredAt.toLocalDate();
-		if(!dailyRecords.containsKey(date)) dailyRecords.put(date, new DailyRecord(date));
+		if(!dailyRecords.containsKey(date)) dailyRecords.put(date, new DailyRecord(date, sessID));
 		DailyRecord record = dailyRecords.get(date);
 		record.logEvent(e);
 	}
