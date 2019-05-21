@@ -20,6 +20,8 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import aggregation.Pair;
 import aggregation.SessionRecord;
@@ -48,15 +50,26 @@ public class GettingStarted {
 		 * have collected for a specific user, the folder represents the first day when
 		 * the user uploaded data.
 		 */
-		Set<String> userZips = IoHelper.findAllZips(eventsDir);
+		final Set<String> userZips = IoHelper.findAllZips(eventsDir);
 		System.out.printf("found %d zips\n", userZips.size());
-
+		
+		ExecutorService executorService = Executors.newFixedThreadPool(4); // number of threads
 		int numZip = 0;
 		for (String userZip : userZips) {
 			numZip++;
-			System.out.printf("\n#### processing user zip %d/%d: %s #####\n", numZip, userZips.size(), userZip);
-			processUserZip(userZip);
+		   // declare variables as final which will be used in method run below
+		   final int count = numZip;
+		   final String zip = userZip;
+		   executorService.submit(new Runnable() {
+		       @Override
+		       public void run() {
+		    	   System.out.printf("\n#### processing user zip %d/%d: %s #####\n", count, userZips.size(), zip);
+					processUserZip(zip);
+					System.out.printf("\n#### Done with zip %d/%d: %s #####\n", count, userZips.size(), zip);
+		       }
+		   });
 		}
+		executorService.shutdown();
 	}
 
 	private void processUserZip(String userZip) {
@@ -76,13 +89,13 @@ public class GettingStarted {
 
 				record.setSessId(e.IDESessionUUID);
 				record.addEvent(e);
-				//processEvent(e);
 				numProcessedEvents++;
-				if(numProcessedEvents%10000 == 0) System.out.println(numProcessedEvents);
+				//if(numProcessedEvents%10000 == 0) System.out.println(numProcessedEvents);
 			}
 			
 			System.out.printf("%s contains %d events\n", userZip, numProcessedEvents);
-			System.out.print(record.toJSON());
+			if (record.totalCycles()>0)
+				System.out.print(record.toString());
 			
 			System.out.println("Working Directory = " +
 		              System.getProperty("user.dir"));

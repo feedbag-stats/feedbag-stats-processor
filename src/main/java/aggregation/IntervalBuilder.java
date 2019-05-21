@@ -8,14 +8,17 @@ import java.util.TreeSet;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
+
+//receives ActivityIntervals and TaggedInstant<Boolean>s
+//produces nice ActivityIntervals
 public class IntervalBuilder {
 	
-	private SortedSet<ActivityInterval> intervals = new TreeSet<>(ActivityInterval.COMPARATOR);
-	private SortedSet<FlaggedInstant> testingState = new TreeSet<FlaggedInstant>(FlaggedInstant.COMPARATOR);
+	private SortedSet<ActivityInterval> intervals = new TreeSet<>(ActivityInterval.BEGIN_COMPARATOR);
+	private SortedSet<TaggedInstant<Boolean>> testingState = new TreeSet<TaggedInstant<Boolean>>(TaggedInstant.COMPARATOR);
 	
 	//adds a flagged instant to build the testing intervals later
 	public void add(Instant i, boolean testingStatus) {
-		testingState.add(new FlaggedInstant(i, testingStatus));
+		testingState.add(new TaggedInstant<Boolean>(i, testingStatus));
 	}
 	
 	//adds an instant to add to an existing interval or create a new interval
@@ -59,7 +62,7 @@ public class IntervalBuilder {
 	}
 
 	private SortedSet<ActivityInterval> getLongEnoughIntervals() {
-		SortedSet<ActivityInterval> result = new TreeSet<>(ActivityInterval.COMPARATOR);
+		SortedSet<ActivityInterval> result = new TreeSet<>(ActivityInterval.BEGIN_COMPARATOR);
 		fuseIntervals();
 		for(ActivityInterval interval : intervals) {
 			if(interval.end().minus(interval.getType().minDisplayedDuration()).isAfter(interval.begin())) {
@@ -71,8 +74,8 @@ public class IntervalBuilder {
 
 	//merges intervals that should extend each other, deletes duplicates
 	private void fuseIntervals() {
-		SortedSet<ActivityInterval> fusedIntervals = new TreeSet<>(ActivityInterval.COMPARATOR);
-		SortedSet<ActivityInterval> dedupedIntervals = new TreeSet<>(ActivityInterval.COMPARATOR);
+		SortedSet<ActivityInterval> fusedIntervals = new TreeSet<>(ActivityInterval.BEGIN_COMPARATOR);
+		SortedSet<ActivityInterval> dedupedIntervals = new TreeSet<>(ActivityInterval.BEGIN_COMPARATOR);
 		
 		for(ActivityInterval p : intervals) {
 			
@@ -126,10 +129,10 @@ public class IntervalBuilder {
 	}
 	
 	private SortedSet<ActivityInterval> getTestingIntervals() {
-		SortedSet<ActivityInterval> testingIntervals = new TreeSet<>(ActivityInterval.COMPARATOR);
+		SortedSet<ActivityInterval> testingIntervals = new TreeSet<>(ActivityInterval.BEGIN_COMPARATOR);
 		Iterator<ActivityInterval> activeIntervals = intervals.iterator();
-		PeekingIterator<FlaggedInstant> testingStateChanges = Iterators.peekingIterator(testingState.iterator());
-		FlaggedInstant currentTestingState = new FlaggedInstant(Instant.ofEpochMilli(0),false);
+		PeekingIterator<TaggedInstant<Boolean>> testingStateChanges = Iterators.peekingIterator(testingState.iterator());
+		TaggedInstant<Boolean> currentTestingState = new TaggedInstant<Boolean>(Instant.ofEpochMilli(0),false);
 		
 		//go through all intervals where we had activity
 		while(activeIntervals.hasNext()) {
@@ -140,18 +143,18 @@ public class IntervalBuilder {
 			}
 			
 			//create tagged instants for every new testing state change
-			TreeSet<FlaggedInstant> periods = new TreeSet<>(FlaggedInstant.COMPARATOR);
-			periods.add(new FlaggedInstant(i.begin(),currentTestingState.flag()));
+			TreeSet<TaggedInstant<Boolean>> periods = new TreeSet<>(TaggedInstant.COMPARATOR);
+			periods.add(new TaggedInstant<Boolean>(i.begin(),currentTestingState.tag()));
 			while(testingStateChanges.hasNext() && testingStateChanges.peek().instant().isBefore(i.end())) {
 				currentTestingState = testingStateChanges.next();
 				periods.add(currentTestingState);
 			}
 			
 			//make tagged periods out of tagged instants
-			PeekingIterator<FlaggedInstant> periodIt = Iterators.peekingIterator(periods.iterator());
+			PeekingIterator<TaggedInstant<Boolean>> periodIt = Iterators.peekingIterator(periods.iterator());
 			while(periodIt.hasNext()) {
-				FlaggedInstant start = periodIt.next();
-				if(!start.flag()) continue;
+				TaggedInstant<Boolean> start = periodIt.next();
+				if(!start.tag()) continue;
 				Instant end = periodIt.hasNext() ? periodIt.peek().instant() : i.end();
 				testingIntervals.add(new ActivityInterval(start.instant(),end, ActivityType.TESTINGSTATE));
 			}

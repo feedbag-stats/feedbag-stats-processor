@@ -1,35 +1,25 @@
 package aggregation;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.SortedSet;
-import java.util.TreeSet;
-
-import com.google.common.collect.Iterators;
-import com.google.common.collect.PeekingIterator;
 
 import cc.kave.commons.model.events.IDEEvent;
 import cc.kave.commons.model.events.NavigationEvent;
 import cc.kave.commons.model.events.completionevents.CompletionEvent;
 import cc.kave.commons.model.events.testrunevents.TestCaseResult;
+import cc.kave.commons.model.events.testrunevents.TestResult;
 import cc.kave.commons.model.events.testrunevents.TestRunEvent;
 import cc.kave.commons.model.events.visualstudio.DebuggerEvent;
 import cc.kave.commons.model.events.visualstudio.EditEvent;
-import cc.kave.commons.model.ssts.IExpression;
-import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
-import cc.kave.commons.model.ssts.impl.expressions.assignable.CompletionExpression;
-import cc.kave.commons.model.ssts.impl.expressions.assignable.InvocationExpression;
-import cc.kave.commons.model.ssts.statements.IExpressionStatement;
 
 public class DailyRecord {
 	
 	private String userid;
 	private LocalDate date;
 	private IntervalBuilder activityRecord = new IntervalBuilder();
+	public TDDCycleDetector tddDetector = new TDDCycleDetector();
 	
 	
 	public DailyRecord(LocalDate date, String userid) {
@@ -51,47 +41,22 @@ public class DailyRecord {
 			activityRecord.add(triggeredAt,isTestingFile);
 		} else if(e instanceof EditEvent) {
 			//Programmer is in writing mode
-			activityRecord.add(e.TriggeredAt.toInstant(), ActivityType.WRITE);
+			activityRecord.add(triggeredAt, ActivityType.WRITE);
 		} else if (e instanceof DebuggerEvent) {
 			//Programmer is in debugging mode
-			activityRecord.add(e.TriggeredAt.toInstant(), ActivityType.DEBUG);
+			activityRecord.add(triggeredAt, ActivityType.DEBUG);
 		} else if (e instanceof TestRunEvent) {
 			//add test intervals
 			TestRunEvent t = (TestRunEvent) e;
 			for(TestCaseResult i : t.Tests) {
-				activityRecord.add(new ActivityInterval(t.TriggeredAt.toInstant(), t.TriggeredAt.toInstant().plus(i.Duration), ActivityType.TESTRUN));
+				activityRecord.add(new ActivityInterval(triggeredAt, triggeredAt.plus(i.Duration), ActivityType.TESTRUN));
+				tddDetector.addTestResult(i.TestMethod, triggeredAt, i.Result);
 			}
 			
 		} else if (e instanceof CompletionEvent) {
 			CompletionEvent c = (CompletionEvent) e;
-			//System.out.println(c.toString());
-			//System.out.println(c.getContext().getSST().getMethods().toString());
-			for (IMethodDeclaration s : c.getContext().getSST().getMethods()) {
-				//containsTestingMethod(s);
-			}
+			tddDetector.addSST(c.getContext().getSST(), triggeredAt);
 		}
-		
-		
-	}
-	
-	private boolean containsTestingMethod(IMethodDeclaration method) {
-		for (IStatement s : method.getBody()) {
-			try {
-				if (s instanceof IExpressionStatement) {
-					IExpression e = ((IExpressionStatement) s).getExpression();
-					if (e instanceof InvocationExpression) {
-						System.out.println(((InvocationExpression)e).getMethodName().getFullName().contains("NUnit"));
-					} else if (e instanceof CompletionExpression) {
-						System.out.println(((CompletionExpression)e).getTypeReference().getFullName().contains("NUnit"));
-					} else {
-						System.out.println(((IExpressionStatement)e).getExpression());
-					}
-				}
-			} catch (Exception e) {
-				// could not get name, therefore we assume it's no test
-			}
-		}
-		return false;
 	}
 
 	//returns datestring + svg-string
@@ -146,7 +111,7 @@ public class DailyRecord {
 			} else {
 				first = false;
 			}
-			json += "{\"begin\":\""+i.begin().toString()+"\",\"end\":\""+i.end().toString()+"\",\"user\"=\""+userid+"\",\"type\"=\""+i.getType().toString()+"\"}";
+			json += i.toJSON(userid);
 		}
 		return json;
 	}

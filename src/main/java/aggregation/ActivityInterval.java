@@ -5,10 +5,17 @@ import java.util.Comparator;
 
 public class ActivityInterval {
 	
-	public static final Comparator<ActivityInterval> COMPARATOR = new Comparator<ActivityInterval>() {
+	public static final Comparator<ActivityInterval> BEGIN_COMPARATOR = new Comparator<ActivityInterval>() {
 		@Override
 		public int compare(ActivityInterval i1, ActivityInterval i2) {
 			return i1.begin().compareTo(i2.begin());
+		}
+	};
+	
+	public static final Comparator<ActivityInterval> END_COMPARATOR = new Comparator<ActivityInterval>() {
+		@Override
+		public int compare(ActivityInterval i1, ActivityInterval i2) {
+			return i1.end().compareTo(i2.end());
 		}
 	};
 	
@@ -44,5 +51,9 @@ public class ActivityInterval {
 	
 	public String toString() {
 		return "ActivityInterval["+begin.toString()+","+end.toString()+","+type.toString()+"]";
+	}
+	
+	public String toJSON(String userid) {
+		return "{\"begin\":\""+begin().toString()+"\",\"end\":\""+end().toString()+"\",\"user\"=\""+userid+"\",\"type\"=\""+getType().toString()+"\"}";
 	}
 }

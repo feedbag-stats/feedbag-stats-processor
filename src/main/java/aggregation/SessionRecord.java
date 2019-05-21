@@ -23,10 +23,14 @@ public class SessionRecord {
 		record.logEvent(e);
 	}
 	
+	public int totalCycles() {
+		return dailyRecords.values().stream().map((r)->r.tddDetector.getMaxConsecutiveCycles()).mapToInt(Integer::intValue).sum();
+	}
+	
 	public String toString() {
 		String s = "Session " + sessID + "[\n";
 		for (DailyRecord record : dailyRecords.values()) {
-			s += "    " + record.toString() + "\n";
+			s += "    " + record.tddDetector.toString() + "\n";
 		}
 		return s + "]\n";
 	}
