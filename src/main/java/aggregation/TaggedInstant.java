@@ -29,4 +29,8 @@ public class TaggedInstant<T> {
 	public T tag() {
 		return tag;
 	}
+	
+	public String toString() {
+		return "<"+instant.toString()+","+tag.toString()+">";
+	}
 }

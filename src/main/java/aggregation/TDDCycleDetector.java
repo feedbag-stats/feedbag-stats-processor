@@ -3,11 +3,9 @@ package aggregation;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.function.BiFunction;
 
 import cc.kave.commons.model.events.testrunevents.TestResult;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.IExpression;
 import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.model.ssts.IStatement;
@@ -18,42 +16,49 @@ import cc.kave.commons.model.ssts.statements.IExpressionStatement;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
+//Detects edit-fail-pass-cycles for tests
 public class TDDCycleDetector {
-
-	BiFunction<? super Instant, ? super Instant, ? extends Instant> instantMin = (Instant a, Instant b) -> a==null || a.isBefore(b) ? a : b;
 	
-	//Stores for each file when it was first mentioned and what tests it contained
-	private Map<ITypeName,Pair<Instant,ArrayList<IMethodName>>> firstFileOccurrence = new HashMap<>();
-	//stores for each test when it was first mentioned
-	private Map<IMethodName,Instant> firstTestOccurrence = new HashMap<>();
-	//stores for each test when it first passed
-	private Map<IMethodName,Instant> firstPass = new HashMap<>();
-	//stores for each test when it first failed
-	private Map<IMethodName,Instant> firstFail = new HashMap<>();
+	//stores for each testing file when it was edited
+	private Map<IMethodName,ArrayList<Instant>> methodEdits = new HashMap<>();
+	//stores for each test when it passed
+	private Map<IMethodName,ArrayList<Instant>> passes = new HashMap<>();
+	//stores for each test when it failed
+	private Map<IMethodName,ArrayList<Instant>> fails = new HashMap<>();
 	
-	public void addSST(ISST sst, Instant time) {
-		//update firstFileOccurrence if necessary
-		Pair<Instant,ArrayList<IMethodName>> oldValue = firstFileOccurrence.get(sst.getEnclosingType());
-		if (oldValue==null || oldValue.getLeft().isAfter(time)) {
-			ArrayList<IMethodName> containedMethods = new ArrayList<>();
+	public void addEditEvent(ISST sst, Instant time) {
+		if(isTestFile(sst)) {
 			for (IMethodDeclaration m : sst.getMethods()) {
-				containedMethods.add(m.getName());
-			}
-			firstFileOccurrence.put(sst.getEnclosingType(), new Pair<Instant, ArrayList<IMethodName>>(time, containedMethods));
-		}
-		
-		//update firstMethodOccurrence if necessary
-		for(IMethodDeclaration m : sst.getMethods()) {
-			if (isTest(m)) {
-				firstTestOccurrence.merge(m.getName(), time, instantMin);
+				if(!methodEdits.containsKey(m.getName())) {
+					methodEdits.put(m.getName(), new ArrayList<>());
+				}
+				methodEdits.get(m.getName()).add(time);
 			}
 		}
 	}
 	
+	private boolean isTestFile(ISST sst) {
+		if (sst.getEnclosingType().getFullName().endsWith("Test")
+		 || sst.getEnclosingType().getFullName().endsWith("Tests")) {
+			return true;
+		}
+		for (IMethodDeclaration m : sst.getMethods()) {
+			if(callsNUnit(m)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void addTestResult(IMethodName name, Instant startTime, TestResult result) {
-		(result.equals(TestResult.Success) ? firstPass : firstFail).merge(name, startTime, instantMin);
+		Map<IMethodName,ArrayList<Instant>> map = result.equals(TestResult.Success) ? passes : fails;
+		if(!map.containsKey(name)) {
+			map.put(name, new ArrayList<>());
+		}
+		map.get(name).add(startTime);
 	}
 	
 	public int getMaxConsecutiveCycles() {
@@ -63,7 +68,10 @@ public class TDDCycleDetector {
 			tempResults.add(new TaggedInstant<Integer>(i.end(), Math.max(maxUntil(tempResults,i.begin())+1, maxUntil(tempResults,i.end()))));
 		}
 		
-		int maxTag = tempResults.stream().map((i)->i.tag()).max(Integer::max).orElse(0);
+		int maxTag = tempResults.stream()
+				.map((i)->i.tag())
+				.reduce(Integer::max)
+				.orElse(0);
 		
 		return maxTag;
 	}
@@ -72,45 +80,52 @@ public class TDDCycleDetector {
 		//a cycle...
 		SortedSet<ActivityInterval> cycles = new TreeSet<>(ActivityInterval.END_COMPARATOR);
 		
-		//...was newly written and...
-		ArrayList<IMethodName> addedMethods = getAddedTests();
-		for (IMethodName m : addedMethods) {
-			if (firstPass.containsKey(m) && firstFail.containsKey(m)) {
-				//...first failed and then passed.
-				if (firstPass.get(m).isAfter(firstFail.get(m))) {
-					//a cycle begins when the test is added
-					//and ends when it first passes
-					cycles.add(new ActivityInterval(firstTestOccurrence.get(m), firstPass.get(m), null));
-				}
+		//...starts with an edited test method...
+		ArrayList<TaggedInstant<IMethodName>> startingPoints = new ArrayList<>();
+		for(IMethodName name : methodEdits.keySet()) {
+			for(Instant i : methodEdits.get(name)) {
+				startingPoints.add(new TaggedInstant<IMethodName>(i, name));
+			}
+		}
+		
+		for(TaggedInstant<IMethodName> tagged : startingPoints) {
+			//...is followed by a failing test...
+			Instant fail = firstInstantAfter(fails.get(tagged.tag()), tagged.instant());
+			if(fail == null) continue; //no fail found afterwards. no cycle
+			//...which in turn is followed by a succeeding test...
+			Instant pass = firstInstantAfter(passes.get(tagged.tag()), fail);
+			if(pass == null) continue; //no pass found afterwards. no cycle
+			//...and has no edit even in between.
+			if(!containsInstantBetween(methodEdits.get(tagged.tag()), tagged.instant(), pass)) {
+				cycles.add(new ActivityInterval(tagged.instant(), pass, null));
 			}
 		}
 		
 		return cycles;
 	}
 	
-	//returns an arraylist of all tests that were not contained in any file when it first was logged
-	private ArrayList<IMethodName> getAddedTests() {
-		ArrayList<IMethodName> newTests = new ArrayList<>();
-		for (IMethodName m : firstTestOccurrence.keySet()) {
-			Instant firstOccurrence = firstTestOccurrence.get(m);
-			boolean testIsNewlyWritten = true;
-			for(Pair<Instant,ArrayList<IMethodName>> p : firstFileOccurrence.values()) {
-				if (p.getLeft().isAfter(firstOccurrence)) continue;
-				if (p.getRight().contains(m)) {
-					testIsNewlyWritten = false;
-					break;
+	private Instant firstInstantAfter(Collection<Instant> instants, Instant startingPoint) {
+		if(instants==null) return null;
+		Instant first = null;
+		for(Instant i : instants) {
+			if(i.isAfter(startingPoint)) {
+				if(first==null || i.isBefore(first)) {
+					first = i;
 				}
-				if(!testIsNewlyWritten) break;
-			}
-			if (testIsNewlyWritten) {
-				newTests.add(m);
 			}
 		}
-		return newTests;
+		return first;
+	}
+	
+	private boolean containsInstantBetween(Collection<Instant> instants, Instant begin, Instant end) {
+		for(Instant i : instants) {
+			if(i.isAfter(begin) && i.isBefore(end)) return true;
+		}
+		return false;
 	}
 	
 	//assumption: every test calls a NUnit function at some point
-	private boolean isTest(IMethodDeclaration method) {
+	private boolean callsNUnit(IMethodDeclaration method) {
 		for (IStatement s : method.getBody()) {
 			try {
 				if (s instanceof IExpressionStatement) {
@@ -132,16 +147,16 @@ public class TDDCycleDetector {
 		return list.stream()
 				.filter(((i)->(i.instant().isBefore(maxTime) || i.instant().equals(maxTime))))
 				.map((i)->i.tag())
-				.max(Integer::max)
+				.reduce(Integer::max)
 				.orElse(0);
 	}
 	
 	public String toString() {
-		return "TDDCycleDetector[\nfirstFileOccurrence: "+
-				firstFileOccurrence.toString()+"\nfirstTestOccurrence: "+
-				firstTestOccurrence.toString()+"\nfirstPass: "+
-				firstPass.toString()+"\nfirstFail: "+
-				firstFail.toString()+"\ncycles: "+
+		return "TDDCycleDetector[\nmethodEdits: "+
+				methodEdits.toString()+"\npass: "+
+				passes.toString()+"\nfail: "+
+				fails.toString()+"\nall cycles:"+
+				getAllCycles().toString()+"\nconsecutive cycles: "+
 				getMaxConsecutiveCycles()+"]\n";
 	}
 }

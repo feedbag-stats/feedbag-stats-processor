@@ -6,13 +6,10 @@ import java.util.SortedSet;
 
 import cc.kave.commons.model.events.IDEEvent;
 import cc.kave.commons.model.events.NavigationEvent;
-import cc.kave.commons.model.events.completionevents.CompletionEvent;
 import cc.kave.commons.model.events.testrunevents.TestCaseResult;
-import cc.kave.commons.model.events.testrunevents.TestResult;
 import cc.kave.commons.model.events.testrunevents.TestRunEvent;
 import cc.kave.commons.model.events.visualstudio.DebuggerEvent;
 import cc.kave.commons.model.events.visualstudio.EditEvent;
-import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 
 public class DailyRecord {
 	
@@ -40,8 +37,11 @@ public class DailyRecord {
 			boolean isTestingFile = fileName.endsWith("Test.cs") || fileName.endsWith("Tests.cs");
 			activityRecord.add(triggeredAt,isTestingFile);
 		} else if(e instanceof EditEvent) {
+			EditEvent event = (EditEvent)e;
 			//Programmer is in writing mode
 			activityRecord.add(triggeredAt, ActivityType.WRITE);
+			if(event.Context2 != null)
+				tddDetector.addEditEvent(((EditEvent)e).Context2.getSST(), triggeredAt);
 		} else if (e instanceof DebuggerEvent) {
 			//Programmer is in debugging mode
 			activityRecord.add(triggeredAt, ActivityType.DEBUG);
@@ -53,9 +53,6 @@ public class DailyRecord {
 				tddDetector.addTestResult(i.TestMethod, triggeredAt, i.Result);
 			}
 			
-		} else if (e instanceof CompletionEvent) {
-			CompletionEvent c = (CompletionEvent) e;
-			tddDetector.addSST(c.getContext().getSST(), triggeredAt);
 		}
 	}
 

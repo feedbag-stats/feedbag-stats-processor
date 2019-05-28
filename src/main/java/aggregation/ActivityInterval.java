@@ -50,7 +50,7 @@ public class ActivityInterval {
 	}
 	
 	public String toString() {
-		return "ActivityInterval["+begin.toString()+","+end.toString()+","+type.toString()+"]";
+		return "ActivityInterval["+begin.toString()+","+end.toString()+","+(type==null ? "NOTYPE" : type.toString())+"]";
 	}
 	
 	public String toJSON(String userid) {

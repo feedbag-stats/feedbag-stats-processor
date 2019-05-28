@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import aggregation.Pair;
 import aggregation.SessionRecord;
@@ -53,23 +54,30 @@ public class GettingStarted {
 		final Set<String> userZips = IoHelper.findAllZips(eventsDir);
 		System.out.printf("found %d zips\n", userZips.size());
 		
-		ExecutorService executorService = Executors.newFixedThreadPool(4); // number of threads
+		ExecutorService executorService = Executors.newFixedThreadPool(1); // number of threads
 		int numZip = 0;
 		for (String userZip : userZips) {
 			numZip++;
 		   // declare variables as final which will be used in method run below
 		   final int count = numZip;
 		   final String zip = userZip;
-		   executorService.submit(new Runnable() {
-		       @Override
-		       public void run() {
+    	   if((count==23) || count==58 || count==71 || count==76) {
+//		   executorService.submit(new Runnable() {
+//		       @Override
+//		       public void run() {
 		    	   System.out.printf("\n#### processing user zip %d/%d: %s #####\n", count, userZips.size(), zip);
-					processUserZip(zip);
-					System.out.printf("\n#### Done with zip %d/%d: %s #####\n", count, userZips.size(), zip);
-		       }
-		   });
-		}
-		executorService.shutdown();
+		    	   processUserZip(zip);
+		    	   System.out.printf("\n#### Done with zip %d/%d: %s #####\n", count, userZips.size(), zip);
+//		       }
+//		   });
+		}}
+//		executorService.shutdown();
+//		try {
+//			executorService.awaitTermination(1, TimeUnit.DAYS);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+		System.out.println("DONE ALL");
 	}
 
 	private void processUserZip(String userZip) {
@@ -80,7 +88,7 @@ public class GettingStarted {
 			// the iteration will stop after 200 events to speed things up, remove this
 			// guard to process all events.
 			SessionRecord record = new SessionRecord();
-			while (ra.hasNext() /*&& (numProcessedEvents++ < 20)*/) {
+			while (ra.hasNext() /*&& (numProcessedEvents++ < 20000)*/) {
 				/*
 				 * within the userZip, each stored event is contained as a single file that
 				 * contains the Json representation of a subclass of IDEEvent.
@@ -90,12 +98,11 @@ public class GettingStarted {
 				record.setSessId(e.IDESessionUUID);
 				record.addEvent(e);
 				numProcessedEvents++;
-				//if(numProcessedEvents%10000 == 0) System.out.println(numProcessedEvents);
+				if(numProcessedEvents%10000 == 0) System.out.printf("%s\n", numProcessedEvents);
 			}
 			
 			System.out.printf("%s contains %d events\n", userZip, numProcessedEvents);
-			if (record.totalCycles()>0)
-				System.out.print(record.toString());
+			System.out.printf(record.toString()+"\n");
 			
 			System.out.println("Working Directory = " +
 		              System.getProperty("user.dir"));
