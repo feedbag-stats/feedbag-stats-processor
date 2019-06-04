@@ -54,7 +54,7 @@ public class GettingStarted {
 		final Set<String> userZips = IoHelper.findAllZips(eventsDir);
 		System.out.printf("found %d zips\n", userZips.size());
 		
-		ExecutorService executorService = Executors.newFixedThreadPool(1); // number of threads
+		ExecutorService executorService = Executors.newFixedThreadPool(4); // number of threads
 		int numZip = 0;
 		for (String userZip : userZips) {
 			numZip++;
@@ -62,21 +62,21 @@ public class GettingStarted {
 		   final int count = numZip;
 		   final String zip = userZip;
     	   if((count==23) || count==58 || count==71 || count==76) {
-//		   executorService.submit(new Runnable() {
-//		       @Override
-//		       public void run() {
+		   executorService.submit(new Runnable() {
+		       @Override
+		       public void run() {
 		    	   System.out.printf("\n#### processing user zip %d/%d: %s #####\n", count, userZips.size(), zip);
 		    	   processUserZip(zip);
 		    	   System.out.printf("\n#### Done with zip %d/%d: %s #####\n", count, userZips.size(), zip);
-//		       }
-//		   });
+		       }
+		   });
 		}}
-//		executorService.shutdown();
-//		try {
-//			executorService.awaitTermination(1, TimeUnit.DAYS);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
+		executorService.shutdown();
+		try {
+			executorService.awaitTermination(1, TimeUnit.DAYS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		System.out.println("DONE ALL");
 	}
 

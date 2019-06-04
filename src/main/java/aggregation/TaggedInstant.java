@@ -8,7 +8,7 @@ public class TaggedInstant<T> {
 	private final T tag;
 	
 	@SuppressWarnings("rawtypes")
-	public static final Comparator<TaggedInstant> COMPARATOR = new Comparator<TaggedInstant>() {
+	public static final Comparator<TaggedInstant> INSTANT_COMPARATOR = new Comparator<TaggedInstant>() {
 		@Override
 		public int compare(TaggedInstant o1, TaggedInstant o2) {
 			return o1.instant.compareTo(o2.instant);

@@ -2,7 +2,7 @@ package aggregation;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.SortedSet;
+import java.util.Set;
 
 import cc.kave.commons.model.events.IDEEvent;
 import cc.kave.commons.model.events.NavigationEvent;
@@ -68,12 +68,12 @@ public class DailyRecord {
 		svg += "<text x=\"0\" y=\"13\" fontSize=\"6\" lengthAdjust=\"spacingAndGlyphs\" textLength=\""+textWidth+"\">"+date.toString()+"</text>";
 		
 		
-		svg += intervalsToSVG(activityRecord.getIntervals(), textWidth, 0.1, timelineWidth);
+		svg += intervalsToSVG(activityRecord.getVisibleIntervals(), textWidth, 0.1, timelineWidth);
 			
 		return new Pair<String,String>(date.toString(), svg + "</svg>");
 	}
 	
-	private String intervalsToSVG(SortedSet<ActivityInterval> intervals, int textWidth, double minBarWidth, int timelineWidth) {
+	private String intervalsToSVG(Set<ActivityInterval> intervals, int textWidth, double minBarWidth, int timelineWidth) {
 		double milliPerDay = (24.0*60*60*1000);
 		double widthPerMilli = timelineWidth/milliPerDay;
 		String svg = "";
@@ -92,14 +92,14 @@ public class DailyRecord {
 		json += "\"date\":\""+date.toString()+"\",";
 		
 		//active intervals
-		json += "\"intervals\":["+intervalsToJSON(activityRecord.getIntervals())+"]";
+		json += "\"intervals\":["+intervalsToJSON(activityRecord.getVisibleIntervals())+"]";
 		
 		
 		return json + "}";
 	}
 	
 	//return format: {begin,end,user,type},{begin,end,user,type},...
-	private String intervalsToJSON(SortedSet<ActivityInterval> intervals) {
+	private String intervalsToJSON(Set<ActivityInterval> intervals) {
 		String json = "";
 		boolean first = true;
 		for(ActivityInterval i : intervals) {

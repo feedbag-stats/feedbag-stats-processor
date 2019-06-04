@@ -380,6 +380,17 @@ public class TDDCycleDetectorTest {
 		
 		assertEquals(2, detector.getMaxConsecutiveCycles());
 	}
+	
+	@Test
+	public void noCycle() {
+		
+		detector.addEditEvent(sst, Instant.ofEpochMilli(1));
+		detector.addTestResult(mName, Instant.ofEpochMilli(2), TestResult.Failed);
+		detector.addEditEvent(sst, Instant.ofEpochMilli(3));
+		detector.addTestResult(mName, Instant.ofEpochMilli(4), TestResult.Success);
+		
+		assertEquals(0, detector.getMaxConsecutiveCycles());
+	}
 }
 
 

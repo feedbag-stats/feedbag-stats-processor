@@ -3,6 +3,7 @@ package aggregation;
 import java.time.Duration;
 
 public enum ActivityType {
+	//          Timeout               Min. displayed Duration  svgY svgHeight svgColour
 	ACTIVE      (Duration.ofSeconds(60), Duration.ofSeconds(5), 50,  100, "#000000"),
 	WRITE       (Duration.ofSeconds(60), Duration.ofSeconds(5), 70,  30,  "#3030F0"),
 	TESTRUN     (Duration.ofSeconds(0),  Duration.ofSeconds(0), 55,  10,  "#30F030"),
