@@ -21,9 +21,17 @@ import cc.kave.commons.utils.io.Logger;
 import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
 import cc.kave.rsse.calls.utils.json.JsonUtilsCcKaveRsseCalls;
+import entity.ActivityEntry;
+import entity.User;
 import examples.GettingStarted;
 import examples.rsse.calls.BMNEvaluation;
 import examples.rsse.calls.BMNMining;
+import helpers.HibernateUtil;
+import org.hibernate.Session;
+
+import javax.persistence.Query;
+import java.util.List;
+import java.util.UUID;
 
 public class RunMe {
 
@@ -53,6 +61,8 @@ public class RunMe {
 		// RSSE related examples
 
 		//runRoundtrip_BMN();
+
+		//hibernateExample();
 		System.out.println("Done");
 	}
 
@@ -82,5 +92,24 @@ public class RunMe {
 		log("Current max. memory: %.1f GB\n", Runtime.getRuntime().maxMemory() / gb);
 
 		JsonUtilsCcKaveRsseCalls.registerJsonAdapters();
+	}
+
+	private static void hibernateExample() {
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		session.beginTransaction();
+
+		User user = new User();
+		user.setName("user");
+		user.setUsername("username");
+		user.setToken(UUID.randomUUID().toString());
+
+		session.save(user);
+		session.getTransaction().commit();
+
+		ActivityEntry activityEntry = new ActivityEntry(100,200,"Compilation",user);
+		session.save(activityEntry);
+		session.getTransaction().commit();
+
+		System.out.println("Done example");
 	}
 };
