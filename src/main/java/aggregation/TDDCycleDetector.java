@@ -1,8 +1,8 @@
 package aggregation;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import cc.kave.commons.model.events.testrunevents.TestResult;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
@@ -13,6 +13,8 @@ import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.CompletionExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.InvocationExpression;
 import cc.kave.commons.model.ssts.statements.IExpressionStatement;
+import entity.ActivityInterval;
+import entity.BaseInterval;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -76,9 +78,9 @@ public class TDDCycleDetector {
 		return maxTag;
 	}
 	
-	private Set<ActivityInterval> getAllCycles() {
+	private SortedSet<ActivityInterval> getAllCycles() {
 		//a cycle...
-		Set<ActivityInterval> cycles = new HashSet<>();
+		SortedSet<ActivityInterval> cycles = new TreeSet<>(BaseInterval.BEGIN_COMPARATOR);
 		
 		//...starts with an edited test method...
 		ArrayList<TaggedInstant<IMethodName>> startingPoints = new ArrayList<>();

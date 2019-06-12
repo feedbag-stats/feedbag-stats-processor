@@ -10,6 +10,7 @@ import cc.kave.commons.model.events.testrunevents.TestCaseResult;
 import cc.kave.commons.model.events.testrunevents.TestRunEvent;
 import cc.kave.commons.model.events.visualstudio.DebuggerEvent;
 import cc.kave.commons.model.events.visualstudio.EditEvent;
+import entity.ActivityInterval;
 
 public class DailyRecord {
 	

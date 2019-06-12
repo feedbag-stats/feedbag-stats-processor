@@ -1,16 +1,22 @@
-package aggregation;
+package entity;
 
 import java.time.Instant;
 
-public class ActivityInterval {
+import javax.persistence.*;
+
+import aggregation.ActivityType;
+
+@Entity
+@Table(name="activityinterval")
+@PrimaryKeyJoinColumn(name="id")
+public class ActivityInterval extends BaseInterval {
 	
-	private Instant begin;
-	private Instant end;
+	@Column(nullable=false)
+	@Enumerated(EnumType.STRING)
 	private final ActivityType type;
 	
 	public ActivityInterval(Instant begin, Instant end, ActivityType type) {
-		this.begin = begin;
-		this.end = end;
+		super(begin, end);
 		this.type = type;
 	}
 	
@@ -22,28 +28,10 @@ public class ActivityInterval {
 		return type.equals(i.getType()) && contains(i);
 	}
 	
-	public boolean contains(ActivityInterval i) {
-		return contains(i.begin()) && contains(i.end());
-	}
-	
-	public boolean contains(Instant i) {
-		boolean beginsBefore = begin.equals(i) || begin.isBefore(i);
-		boolean endsAfter = end.equals(i) || end.isAfter(i);
-		return beginsBefore && endsAfter; 
-	}
-	
-	public void merge(ActivityInterval i) {
-		merge(i.begin());
-		merge(i.end());
-	}
-	
-	public void merge(Instant i) {
-		this.begin = min(begin, i);
-		this.end = max(end, i);
-	}
-	
-	public boolean canMerge(ActivityInterval i) {
-		return i.getType().equals(type) && (canMerge(i.begin()) || canMerge(i.end()));
+	public boolean canMerge(BaseInterval i) {
+		if(!(i instanceof ActivityInterval)) return false;
+		ActivityInterval interval = (ActivityInterval) i;
+		return interval.getType().equals(type) && (canMerge(interval.begin()) || canMerge(interval.end()));
 	}
 
 	public boolean canMerge(Instant i, ActivityType type2) {
@@ -68,22 +56,6 @@ public class ActivityInterval {
 		return i.isBefore(begin) && i.compareTo(timeoutBegin) >= 0;
 	}
 
-	public Instant begin() {
-		return begin;
-	}
-
-	public void setBegin(Instant begin) {
-		this.begin = begin;
-	}
-
-	public Instant end() {
-		return end;
-	}
-
-	public void setEnd(Instant end) {
-		this.end = end;
-	}
-
 	public ActivityType getType() {
 		return type;
 	}
@@ -94,13 +66,5 @@ public class ActivityInterval {
 	
 	public String toJSON(String userid) {
 		return "{\"begin\":\""+begin().toString()+"\",\"end\":\""+end().toString()+"\",\"user\"=\""+userid+"\",\"type\"=\""+getType().toString()+"\"}";
-	}
-	
-	public static Instant min(Instant a, Instant b) {
-		return a.isBefore(b) ? a : b;
-	}
-	
-	public static Instant max(Instant a, Instant b) {
-		return a.isAfter(b) ? a : b;
 	}
 }

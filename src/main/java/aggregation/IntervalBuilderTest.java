@@ -54,4 +54,13 @@ public class IntervalBuilderTest {
 		
 		assertEquals(3, builder.getVisibleIntervals().size());
 	}
+	
+	@Test
+	public void mergeIntervals() {
+		builder.add(Instant.ofEpochMilli(1), active);
+		builder.add(Instant.ofEpochMilli(100000), active); //farther out than timeout
+		builder.add(Instant.ofEpochMilli(50000), active); //added to both intervals
+		
+		assertEquals(1, builder.getVisibleIntervals().size());
+	}
 }

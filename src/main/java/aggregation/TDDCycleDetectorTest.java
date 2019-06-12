@@ -31,339 +31,330 @@ import cc.kave.commons.model.ssts.visitor.ISSTNodeVisitor;
 
 public class TDDCycleDetectorTest {
 	private TDDCycleDetector detector;
-	private IMethodName mName = new IMethodName() {
-		
-		@Override
-		public boolean hasParameters() {
-			return false;
-		}
-		
-		@Override
-		public List<IParameterName> getParameters() {
-			return null;
-		}
-		
-		@Override
-		public boolean hasTypeParameters() {
-			return false;
-		}
-		
-		@Override
-		public List<ITypeParameterName> getTypeParameters() {
-			return null;
-		}
-		
-		@Override
-		public boolean isUnknown() {
-			return false;
-		}
-		
-		@Override
-		public boolean isHashed() {
-			return false;
-		}
-		
-		@Override
-		public String getIdentifier() {
-			return "methodIdentifier";
-		}
-		
-		@Override
-		public boolean isStatic() {
-			return false;
-		}
-		
-		@Override
-		public ITypeName getValueType() {
-			return null;
-		}
-		
-		@Override
-		public String getName() {
-			return "methodName";
-		}
-		
-		@Override
-		public String getFullName() {
-			return "methodFullName";
-		}
-		
-		@Override
-		public ITypeName getDeclaringType() {
-			return null;
-		}
-		
-		@Override
-		public boolean isInit() {
-			return false;
-		}
-		
-		@Override
-		public boolean isExtensionMethod() {
-			return false;
-		}
-		
-		@Override
-		public boolean isConstructor() {
-			return false;
-		}
-		
-		@Override
-		public ITypeName getReturnType() {
-			return null;
-		}
-	};
-	
-	private ISST sst = new ISST() {
-		
-		@Override
-		public Iterable<ISSTNode> getChildren() {
-			return null;
-		}
-		
-		@Override
-		public <TContext, TReturn> TReturn accept(ISSTNodeVisitor<TContext, TReturn> arg0, TContext arg1) {
-			return null;
-		}
-		
-		@Override
-		public boolean isPartialClass() {
-			return false;
-		}
-		
-		@Override
-		public Set<IPropertyDeclaration> getProperties() {
-			return null;
-		}
-		
-		@Override
-		public String getPartialClassIdentifier() {
-			return null;
-		}
-		
-		@Override
-		public Set<IMethodDeclaration> getNonEntryPoints() {
-			return null;
-		}
-		
-		@Override
-		public Set<IMethodDeclaration> getMethods() {
-			HashSet<IMethodDeclaration> set = new HashSet<>();
-			set.add(new IMethodDeclaration() {
-				
-				@Override
-				public Iterable<ISSTNode> getChildren() {
-					return null;
-				}
-				
-				@Override
-				public <TContext, TReturn> TReturn accept(ISSTNodeVisitor<TContext, TReturn> arg0, TContext arg1) {
-					return null;
-				}
-				
-				@Override
-				public boolean isEntryPoint() {
-					return false;
-				}
-				
-				@Override
-				public IMethodName getName() {
-					return mName;
-				}
-				
-				@Override
-				public List<IStatement> getBody() {
-					return null;
-				}
-			});
-			return set;
-		}
-		
-		@Override
-		public Set<IFieldDeclaration> getFields() {
-			return null;
-		}
-		
-		@Override
-		public Set<IEventDeclaration> getEvents() {
-			return null;
-		}
-		
-		@Override
-		public Set<IMethodDeclaration> getEntryPoints() {
-			return null;
-		}
-		
-		@Override
-		public ITypeName getEnclosingType() {
-			return new ITypeName() {
-				
-				@Override
-				public int compareTo(ITypeName o) {
-					return 0;
-				}
-				
-				@Override
-				public boolean isUnknown() {
-					return false;
-				}
-				
-				@Override
-				public boolean isHashed() {
-					return false;
-				}
-				
-				@Override
-				public String getIdentifier() {
-					return null;
-				}
-				
-				@Override
-				public boolean hasTypeParameters() {
-					return false;
-				}
-				
-				@Override
-				public List<ITypeParameterName> getTypeParameters() {
-					return null;
-				}
-				
-				@Override
-				public boolean isVoidType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isValueType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isTypeParameter() {
-					return false;
-				}
-				
-				@Override
-				public boolean isStructType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isSimpleType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isReferenceType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isPredefined() {
-					return false;
-				}
-				
-				@Override
-				public boolean isNullableType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isNestedType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isInterfaceType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isEnumType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isDelegateType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isClassType() {
-					return false;
-				}
-				
-				@Override
-				public boolean isArray() {
-					return false;
-				}
-				
-				@Override
-				public INamespaceName getNamespace() {
-					return null;
-				}
-				
-				@Override
-				public String getName() {
-					return "nameTest";
-				}
-				
-				@Override
-				public String getFullName() {
-					return "fullNameTest";
-				}
-				
-				@Override
-				public ITypeName getDeclaringType() {
-					return null;
-				}
-				
-				@Override
-				public IAssemblyName getAssembly() {
-					return null;
-				}
-				
-				@Override
-				public ITypeParameterName asTypeParameterName() {
-					return null;
-				}
-				
-				@Override
-				public IPredefinedTypeName asPredefinedTypeName() {
-					return null;
-				}
-				
-				@Override
-				public IDelegateTypeName asDelegateTypeName() {
-					return null;
-				}
-				
-				@Override
-				public IArrayTypeName asArrayTypeName() {
-					return null;
-				}
-			};
-		}
-		
-		@Override
-		public Set<IDelegateDeclaration> getDelegates() {
-			return null;
-		}
-	};
+	private IMethodName mName;
+	private ISST sst;
 	
 	@Before
 	public void setup() {
 		detector = new TDDCycleDetector();
-	}
-	
-	@Test
-	public void basicCycle() {
-		
-		detector.addEditEvent(sst, Instant.ofEpochMilli(1));
-		detector.addTestResult(mName, Instant.ofEpochMilli(2), TestResult.Failed);
-		detector.addTestResult(mName, Instant.ofEpochMilli(3), TestResult.Success);
-		
-		assertEquals(1, detector.getMaxConsecutiveCycles());
+		mName = new IMethodName() {
+			
+			@Override
+			public boolean hasParameters() {
+				return false;
+			}
+			
+			@Override
+			public List<IParameterName> getParameters() {
+				return null;
+			}
+			
+			@Override
+			public boolean hasTypeParameters() {
+				return false;
+			}
+			
+			@Override
+			public List<ITypeParameterName> getTypeParameters() {
+				return null;
+			}
+			
+			@Override
+			public boolean isUnknown() {
+				return false;
+			}
+			
+			@Override
+			public boolean isHashed() {
+				return false;
+			}
+			
+			@Override
+			public String getIdentifier() {
+				return "methodIdentifier";
+			}
+			
+			@Override
+			public boolean isStatic() {
+				return false;
+			}
+			
+			@Override
+			public ITypeName getValueType() {
+				return null;
+			}
+			
+			@Override
+			public String getName() {
+				return "methodName";
+			}
+			
+			@Override
+			public String getFullName() {
+				return "methodFullName";
+			}
+			
+			@Override
+			public ITypeName getDeclaringType() {
+				return null;
+			}
+			
+			@Override
+			public boolean isInit() {
+				return false;
+			}
+			
+			@Override
+			public boolean isExtensionMethod() {
+				return false;
+			}
+			
+			@Override
+			public boolean isConstructor() {
+				return false;
+			}
+			
+			@Override
+			public ITypeName getReturnType() {
+				return null;
+			}
+		};
+		sst = new ISST() {
+			
+			@Override
+			public Iterable<ISSTNode> getChildren() {
+				return null;
+			}
+			
+			@Override
+			public <TContext, TReturn> TReturn accept(ISSTNodeVisitor<TContext, TReturn> arg0, TContext arg1) {
+				return null;
+			}
+			
+			@Override
+			public boolean isPartialClass() {
+				return false;
+			}
+			
+			@Override
+			public Set<IPropertyDeclaration> getProperties() {
+				return null;
+			}
+			
+			@Override
+			public String getPartialClassIdentifier() {
+				return null;
+			}
+			
+			@Override
+			public Set<IMethodDeclaration> getNonEntryPoints() {
+				return null;
+			}
+			
+			@Override
+			public Set<IMethodDeclaration> getMethods() {
+				HashSet<IMethodDeclaration> set = new HashSet<>();
+				set.add(new IMethodDeclaration() {
+					
+					@Override
+					public Iterable<ISSTNode> getChildren() {
+						return null;
+					}
+					
+					@Override
+					public <TContext, TReturn> TReturn accept(ISSTNodeVisitor<TContext, TReturn> arg0, TContext arg1) {
+						return null;
+					}
+					
+					@Override
+					public boolean isEntryPoint() {
+						return false;
+					}
+					
+					@Override
+					public IMethodName getName() {
+						return mName;
+					}
+					
+					@Override
+					public List<IStatement> getBody() {
+						return null;
+					}
+				});
+				return set;
+			}
+			
+			@Override
+			public Set<IFieldDeclaration> getFields() {
+				return null;
+			}
+			
+			@Override
+			public Set<IEventDeclaration> getEvents() {
+				return null;
+			}
+			
+			@Override
+			public Set<IMethodDeclaration> getEntryPoints() {
+				return null;
+			}
+			
+			@Override
+			public ITypeName getEnclosingType() {
+				return new ITypeName() {
+					
+					@Override
+					public int compareTo(ITypeName o) {
+						return 0;
+					}
+					
+					@Override
+					public boolean isUnknown() {
+						return false;
+					}
+					
+					@Override
+					public boolean isHashed() {
+						return false;
+					}
+					
+					@Override
+					public String getIdentifier() {
+						return null;
+					}
+					
+					@Override
+					public boolean hasTypeParameters() {
+						return false;
+					}
+					
+					@Override
+					public List<ITypeParameterName> getTypeParameters() {
+						return null;
+					}
+					
+					@Override
+					public boolean isVoidType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isValueType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isTypeParameter() {
+						return false;
+					}
+					
+					@Override
+					public boolean isStructType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isSimpleType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isReferenceType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isPredefined() {
+						return false;
+					}
+					
+					@Override
+					public boolean isNullableType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isNestedType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isInterfaceType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isEnumType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isDelegateType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isClassType() {
+						return false;
+					}
+					
+					@Override
+					public boolean isArray() {
+						return false;
+					}
+					
+					@Override
+					public INamespaceName getNamespace() {
+						return null;
+					}
+					
+					@Override
+					public String getName() {
+						return "nameTest";
+					}
+					
+					@Override
+					public String getFullName() {
+						return "fullNameTest";
+					}
+					
+					@Override
+					public ITypeName getDeclaringType() {
+						return null;
+					}
+					
+					@Override
+					public IAssemblyName getAssembly() {
+						return null;
+					}
+					
+					@Override
+					public ITypeParameterName asTypeParameterName() {
+						return null;
+					}
+					
+					@Override
+					public IPredefinedTypeName asPredefinedTypeName() {
+						return null;
+					}
+					
+					@Override
+					public IDelegateTypeName asDelegateTypeName() {
+						return null;
+					}
+					
+					@Override
+					public IArrayTypeName asArrayTypeName() {
+						return null;
+					}
+				};
+			}
+			
+			@Override
+			public Set<IDelegateDeclaration> getDelegates() {
+				return null;
+			}
+		};
 	}
 	
 	@Test
@@ -379,6 +370,14 @@ public class TDDCycleDetectorTest {
 		
 		
 		assertEquals(2, detector.getMaxConsecutiveCycles());
+	}@Test
+	public void basicCycle() {
+		
+		detector.addEditEvent(sst, Instant.ofEpochMilli(1));
+		detector.addTestResult(mName, Instant.ofEpochMilli(2), TestResult.Failed);
+		detector.addTestResult(mName, Instant.ofEpochMilli(3), TestResult.Success);
+		
+		assertEquals(1, detector.getMaxConsecutiveCycles());
 	}
 	
 	@Test

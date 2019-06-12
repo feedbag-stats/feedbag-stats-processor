@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import entity.ActivityInterval;
+
 
 //receives ActivityIntervals and TaggedInstant<Boolean>s
 //produces nice ActivityIntervals
