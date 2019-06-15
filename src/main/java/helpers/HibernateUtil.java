@@ -1,7 +1,11 @@
 package helpers;
 
-import entity.ActivityEntry;
+import entity.ActivityInterval;
+import entity.EditLocation;
+import entity.LocationInterval;
+import entity.TaggedInstant;
 import entity.User;
+
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -28,8 +32,11 @@ public class HibernateUtil {
                 settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
                 settings.put(Environment.HBM2DDL_AUTO, "update");
                 configuration.setProperties(settings);
-                configuration.addAnnotatedClass(ActivityEntry.class);
+                configuration.addAnnotatedClass(ActivityInterval.class);
                 configuration.addAnnotatedClass(User.class);
+                configuration.addAnnotatedClass(EditLocation.class);
+                configuration.addAnnotatedClass(LocationInterval.class);
+                configuration.addAnnotatedClass(TaggedInstant.class);
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);

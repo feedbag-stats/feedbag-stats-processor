@@ -27,6 +27,9 @@ public abstract class BaseInterval {
 	@Column(nullable = false)
 	protected Instant end;
 	
+	@ManyToOne(optional=false)
+	protected User user;
+	
 	public BaseInterval(Instant begin, Instant end) {
 		this.begin = begin;
 		this.end = end;
@@ -70,6 +73,10 @@ public abstract class BaseInterval {
 
 	public void setEnd(Instant end) {
 		this.end = end;
+	}
+	
+	public void setUser(User user) {
+		this.user = user;
 	}
 	
 	public static Instant min(Instant a, Instant b) {

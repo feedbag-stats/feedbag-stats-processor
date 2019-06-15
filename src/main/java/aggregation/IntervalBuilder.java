@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import entity.ActivityInterval;
+import entity.TaggedInstant;
 
 
 //receives ActivityIntervals and TaggedInstant<Boolean>s

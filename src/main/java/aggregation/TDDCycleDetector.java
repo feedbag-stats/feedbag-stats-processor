@@ -15,6 +15,7 @@ import cc.kave.commons.model.ssts.impl.expressions.assignable.InvocationExpressi
 import cc.kave.commons.model.ssts.statements.IExpressionStatement;
 import entity.ActivityInterval;
 import entity.BaseInterval;
+import entity.TaggedInstant;
 
 import java.time.Instant;
 import java.util.ArrayList;
