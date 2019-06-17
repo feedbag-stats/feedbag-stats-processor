@@ -1,8 +1,9 @@
 package aggregation;
 
-import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import cc.kave.commons.model.events.testrunevents.TestResult;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
@@ -15,31 +16,31 @@ import cc.kave.commons.model.ssts.impl.expressions.assignable.InvocationExpressi
 import cc.kave.commons.model.ssts.statements.IExpressionStatement;
 import entity.ActivityInterval;
 import entity.BaseInterval;
+import entity.FileEditTimestamp;
 import entity.TaggedInstant;
+import entity.TestResultTimestamp;
+import entity.User;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 
 //Detects edit-fail-pass-cycles for tests
 public class TDDCycleDetector {
 	
+	private final User user;
+	
 	//stores for each testing file when it was edited
-	private Map<IMethodName,ArrayList<Instant>> methodEdits = new HashMap<>();
-	//stores for each test when it passed
-	private Map<IMethodName,ArrayList<Instant>> passes = new HashMap<>();
-	//stores for each test when it failed
-	private Map<IMethodName,ArrayList<Instant>> fails = new HashMap<>();
+	private Set<FileEditTimestamp> fileEdits = new HashSet<>();
+	private Set<TestResultTimestamp> testresults = new HashSet<>();
+	
+	public TDDCycleDetector(User user) {
+		this.user = user;
+	}
 	
 	public void addEditEvent(ISST sst, Instant time) {
 		if(isTestFile(sst)) {
-			for (IMethodDeclaration m : sst.getMethods()) {
-				if(!methodEdits.containsKey(m.getName())) {
-					methodEdits.put(m.getName(), new ArrayList<>());
-				}
-				methodEdits.get(m.getName()).add(time);
-			}
+			fileEdits.add(new FileEditTimestamp(time, sst.getEnclosingType().toString(), user));
 		}
 	}
 	
@@ -57,18 +58,14 @@ public class TDDCycleDetector {
 	}
 	
 	public void addTestResult(IMethodName name, Instant startTime, TestResult result) {
-		Map<IMethodName,ArrayList<Instant>> map = result.equals(TestResult.Success) ? passes : fails;
-		if(!map.containsKey(name)) {
-			map.put(name, new ArrayList<>());
-		}
-		map.get(name).add(startTime);
+		testresults.add(new TestResultTimestamp(startTime, name, result.equals(TestResult.Success), user));
 	}
 	
 	public int getMaxConsecutiveCycles() {
 		ArrayList<TaggedInstant<Integer>> tempResults = new ArrayList<>();
 		
 		for (ActivityInterval i : getAllCycles()) {
-			tempResults.add(new TaggedInstant<Integer>(i.end(), Math.max(maxUntil(tempResults,i.begin())+1, maxUntil(tempResults,i.end()))));
+			tempResults.add(new TaggedInstant<Integer>(i.end(), Math.max(maxUntil(tempResults,i.begin())+1, maxUntil(tempResults,i.end())), user));
 		}
 		
 		int maxTag = tempResults.stream()
@@ -85,46 +82,50 @@ public class TDDCycleDetector {
 		
 		//...starts with an edited test method...
 		ArrayList<TaggedInstant<IMethodName>> startingPoints = new ArrayList<>();
-		for(IMethodName name : methodEdits.keySet()) {
-			for(Instant i : methodEdits.get(name)) {
-				startingPoints.add(new TaggedInstant<IMethodName>(i, name));
+		for(FileEditTimestamp t : fileEdits) {
+			for(TestResultTimestamp r : testresults) {
+				if(t.tag().equals(r.methodName().getDeclaringType().toString())) {
+					startingPoints.add(new TaggedInstant<IMethodName>(t.instant(), r.methodName(), user));
+				}
 			}
 		}
 		
-		for(TaggedInstant<IMethodName> tagged : startingPoints) {
+		for(TaggedInstant<IMethodName> t : startingPoints) {
 			//...is followed by a failing test...
-			Instant fail = firstInstantAfter(fails.get(tagged.tag()), tagged.instant());
+			Instant fail = firstTestResultAfter(false, t.tag(), t.instant());
 			if(fail == null) continue; //no fail found afterwards. no cycle
 			//...which in turn is followed by a succeeding test...
-			Instant pass = firstInstantAfter(passes.get(tagged.tag()), fail);
+			Instant pass = firstTestResultAfter(true, t.tag(), fail);
 			if(pass == null) continue; //no pass found afterwards. no cycle
 			//...and has no edit even in between.
-			if(!containsInstantBetween(methodEdits.get(tagged.tag()), tagged.instant(), pass)) {
-				cycles.add(new ActivityInterval(tagged.instant(), pass, null));
+			if(!wasEditedBetween(t.tag(), t.instant(), pass)) {
+				cycles.add(new ActivityInterval(t.instant(), pass, null, user));
 			}
 		}
 		
 		return cycles;
 	}
 	
-	private Instant firstInstantAfter(Collection<Instant> instants, Instant startingPoint) {
-		if(instants==null) return null;
+	private Instant firstTestResultAfter(boolean pass, IMethodName methodName, Instant startingPoint) {
 		Instant first = null;
-		for(Instant i : instants) {
-			if(i.isAfter(startingPoint)) {
-				if(first==null || i.isBefore(first)) {
-					first = i;
+		for(TestResultTimestamp t : testresults.stream().filter(t->t.tag()==pass && t.methodName().equals(methodName)).collect(Collectors.toSet())) {
+			if(t.instant().isAfter(startingPoint)) {
+				if(first==null || t.instant().isBefore(first)) {
+					first = t.instant();
 				}
 			}
 		}
 		return first;
 	}
 	
-	private boolean containsInstantBetween(Collection<Instant> instants, Instant begin, Instant end) {
-		for(Instant i : instants) {
-			if(i.isAfter(begin) && i.isBefore(end)) return true;
-		}
-		return false;
+	private boolean wasEditedBetween(IMethodName methodName, Instant begin, Instant end) {
+		String filename = methodName.getDeclaringType().toString();
+		long editCount = fileEdits.stream()
+			.filter(t->t.tag().equals(filename)) //file was edited
+			.filter(t->t.instant().isAfter(begin))
+			.filter(t->t.instant().isBefore(end)) 
+			.count();
+		return editCount > 0;
 	}
 	
 	//assumption: every test calls a NUnit function at some point
@@ -156,9 +157,8 @@ public class TDDCycleDetector {
 	
 	public String toString() {
 		return "TDDCycleDetector[\nmethodEdits: "+
-				methodEdits.toString()+"\npass: "+
-				passes.toString()+"\nfail: "+
-				fails.toString()+"\nall cycles:"+
+				fileEdits.toString()+"\ntestresults: "+
+				testresults.toString()+"\nall cycles:"+
 				getAllCycles().toString()+"\nconsecutive cycles: "+
 				getMaxConsecutiveCycles()+"]\n";
 	}

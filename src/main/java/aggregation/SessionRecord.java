@@ -9,20 +9,21 @@ import cc.kave.commons.model.events.IDEEvent;
 import cc.kave.commons.model.events.completionevents.CompletionEvent;
 import cc.kave.commons.model.events.testrunevents.TestCaseResult;
 import cc.kave.commons.model.events.testrunevents.TestRunEvent;
+import entity.User;
 
 public class SessionRecord {
-	private String sessID;
+	private User user = new User();
 	private Map<LocalDate, DailyRecord> dailyRecords = new HashMap<>();
-	private TDDCycleDetector sessionDetector = new TDDCycleDetector();
+	private TDDCycleDetector sessionDetector = new TDDCycleDetector(null);
 	
 	public SessionRecord() {};
-	public SessionRecord(String id) { sessID = id;}
+	public SessionRecord(String id) { user.setName(id);;}
 	
-	public void setSessId(String id) { sessID = id;}
+	public void setSessId(String id) { user.setName(id);;}
 	
 	public void addEvent(IDEEvent e) {
 		LocalDate date = e.TriggeredAt.toLocalDate();
-		if(!dailyRecords.containsKey(date)) dailyRecords.put(date, new DailyRecord(date, sessID));
+		if(!dailyRecords.containsKey(date)) dailyRecords.put(date, new DailyRecord(date, user));
 		DailyRecord record = dailyRecords.get(date);
 		record.logEvent(e);
 		
@@ -44,16 +45,13 @@ public class SessionRecord {
 	}
 	
 	public String toString() {
-		String s = "Session " + sessID + "[\n";
-//		for (DailyRecord record : dailyRecords.values()) {
-//			s += "    " + record.tddDetector.toString() + "\n";
-//		}
+		String s = "Session " + user.getName() + "[\n";
 		s += sessionDetector.toString();
 		return s + "]\n";
 	}
 	
 	public String toJSON() {
-		String s = "Session " + sessID + "[\n";
+		String s = "Session " + user.getName() + "[\n";
 		for (DailyRecord record : dailyRecords.values()) {
 			s += "    " + record.toJSON() + "\n";
 		}
@@ -64,7 +62,7 @@ public class SessionRecord {
 		ArrayList<Pair<String,String>> svgs = new ArrayList<>();
 		for(DailyRecord r : dailyRecords.values()) {
 			Pair<String, String> pair = r.toSVG();
-			svgs.add(new Pair<String,String>(sessID+"-"+pair.getLeft(), pair.getRight()));
+			svgs.add(new Pair<String,String>(user.getName()+"-"+pair.getLeft(), pair.getRight()));
 		}
 		return svgs;
 	}

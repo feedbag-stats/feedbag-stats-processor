@@ -11,18 +11,21 @@ import cc.kave.commons.model.events.testrunevents.TestRunEvent;
 import cc.kave.commons.model.events.visualstudio.DebuggerEvent;
 import cc.kave.commons.model.events.visualstudio.EditEvent;
 import entity.ActivityInterval;
+import entity.User;
 
 public class DailyRecord {
 	
-	private String userid;
+	private User user;
 	private LocalDate date;
-	private IntervalBuilder activityRecord = new IntervalBuilder();
-	public TDDCycleDetector tddDetector = new TDDCycleDetector();
+	private IntervalBuilder activityRecord;
+	public TDDCycleDetector tddDetector;
 	
 	
-	public DailyRecord(LocalDate date, String userid) {
+	public DailyRecord(LocalDate date, User user) {
 		this.date = date;
-		this.userid = userid;
+		this.user = user;
+		activityRecord = new IntervalBuilder(user);
+		tddDetector = new TDDCycleDetector(user);
 	}
 	
 	public void logEvent(IDEEvent e) {
@@ -50,7 +53,7 @@ public class DailyRecord {
 			//add test intervals
 			TestRunEvent t = (TestRunEvent) e;
 			for(TestCaseResult i : t.Tests) {
-				activityRecord.add(new ActivityInterval(triggeredAt, triggeredAt.plus(i.Duration), ActivityType.TESTRUN));
+				activityRecord.add(new ActivityInterval(triggeredAt, triggeredAt.plus(i.Duration), ActivityType.TESTRUN, user));
 				tddDetector.addTestResult(i.TestMethod, triggeredAt, i.Result);
 			}
 			
@@ -109,7 +112,7 @@ public class DailyRecord {
 			} else {
 				first = false;
 			}
-			json += i.toJSON(userid);
+			json += i.toJSON();
 		}
 		return json;
 	}

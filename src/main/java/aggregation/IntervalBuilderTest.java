@@ -14,7 +14,7 @@ public class IntervalBuilderTest {
 	
 	@Before
 	public void setup() {
-		builder = new IntervalBuilder();
+		builder = new IntervalBuilder(null);
 	}
 	
 	@Test

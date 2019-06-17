@@ -7,18 +7,26 @@ import java.util.stream.Collectors;
 
 import entity.ActivityInterval;
 import entity.TaggedInstant;
+import entity.TestingStateTimestamp;
+import entity.User;
 
 
 //receives ActivityIntervals and TaggedInstant<Boolean>s
 //produces nice ActivityIntervals
 public class IntervalBuilder {
 	
+	private final User user;
+	
 	private Set<ActivityInterval> intervals = new HashSet<>();
-	private Set<TaggedInstant<Boolean>> testingState = new HashSet<>();
+	private Set<TestingStateTimestamp> testingState = new HashSet<>();
+	
+	public IntervalBuilder(User user) {
+		this.user = user;
+	}
 	
 	//adds a flagged instant to build the testing intervals later
 	public void add(Instant i, boolean testingStatus) {
-		testingState.add(new TaggedInstant<Boolean>(i, testingStatus));
+		testingState.add(new TestingStateTimestamp(i, testingStatus, user));
 	}
 	
 	//adds an instant to an existing interval or creates a new interval
@@ -27,7 +35,7 @@ public class IntervalBuilder {
 		int matches = addToIntervals(i, type);
 		//if no nearby interval was found, create a new interval
 		if(matches == 0) {
-			intervals.add(new ActivityInterval(i, i, type));
+			intervals.add(new ActivityInterval(i, i, type, user));
 		}
 	}
 	
@@ -120,8 +128,8 @@ public class IntervalBuilder {
 		Set<TaggedInstant<Boolean>> stateChanges = testingState.stream().
 				filter(m->i.contains(m.instant()))
 				.collect(Collectors.toSet());
-		stateChanges.add(new TaggedInstant<Boolean>(i.begin(), getTestingStateAt(i.begin())));
-		stateChanges.add(new TaggedInstant<Boolean>(i.end(), false));
+		stateChanges.add(new TestingStateTimestamp(i.begin(), getTestingStateAt(i.begin()), user));
+		stateChanges.add(new TestingStateTimestamp(i.end(), false, user));
 		return stateChanges.stream()
 			.filter(t->t.tag())
 			.map(t->toTestingInterval(t, stateChanges))
@@ -133,7 +141,7 @@ public class IntervalBuilder {
 				.filter(i->i.instant().isAfter(t.instant()))
 				.min(TaggedInstant.INSTANT_COMPARATOR)
 				.map(i->i.instant()).orElse(null);
-		return new ActivityInterval(t.instant(), firstInstantAfterT, ActivityType.TESTINGSTATE);
+		return new ActivityInterval(t.instant(), firstInstantAfterT, ActivityType.TESTINGSTATE, user);
 	}
 	
 	private boolean getTestingStateAt(Instant begin) {

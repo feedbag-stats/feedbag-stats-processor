@@ -32,11 +32,159 @@ import cc.kave.commons.model.ssts.visitor.ISSTNodeVisitor;
 public class TDDCycleDetectorTest {
 	private TDDCycleDetector detector;
 	private IMethodName mName;
+	private ITypeName type;
 	private ISST sst;
 	
 	@Before
 	public void setup() {
-		detector = new TDDCycleDetector();
+		detector = new TDDCycleDetector(null);
+		type = new ITypeName() {
+			
+			@Override
+			public int compareTo(ITypeName o) {
+				return 0;
+			}
+			
+			@Override
+			public boolean isUnknown() {
+				return false;
+			}
+			
+			@Override
+			public boolean isHashed() {
+				return false;
+			}
+			
+			@Override
+			public String getIdentifier() {
+				return null;
+			}
+			
+			@Override
+			public boolean hasTypeParameters() {
+				return false;
+			}
+			
+			@Override
+			public List<ITypeParameterName> getTypeParameters() {
+				return null;
+			}
+			
+			@Override
+			public boolean isVoidType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isValueType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isTypeParameter() {
+				return false;
+			}
+			
+			@Override
+			public boolean isStructType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isSimpleType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isReferenceType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isPredefined() {
+				return false;
+			}
+			
+			@Override
+			public boolean isNullableType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isNestedType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isInterfaceType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isEnumType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isDelegateType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isClassType() {
+				return false;
+			}
+			
+			@Override
+			public boolean isArray() {
+				return false;
+			}
+			
+			@Override
+			public INamespaceName getNamespace() {
+				return null;
+			}
+			
+			@Override
+			public String getName() {
+				return "nameTest";
+			}
+			
+			@Override
+			public String getFullName() {
+				return "fullNameTest";
+			}
+			
+			@Override
+			public ITypeName getDeclaringType() {
+				return null;
+			}
+			
+			@Override
+			public IAssemblyName getAssembly() {
+				return null;
+			}
+			
+			@Override
+			public ITypeParameterName asTypeParameterName() {
+				return null;
+			}
+			
+			@Override
+			public IPredefinedTypeName asPredefinedTypeName() {
+				return null;
+			}
+			
+			@Override
+			public IDelegateTypeName asDelegateTypeName() {
+				return null;
+			}
+			
+			@Override
+			public IArrayTypeName asArrayTypeName() {
+				return null;
+			}
+		};
 		mName = new IMethodName() {
 			
 			@Override
@@ -96,7 +244,7 @@ public class TDDCycleDetectorTest {
 			
 			@Override
 			public ITypeName getDeclaringType() {
-				return null;
+				return type;
 			}
 			
 			@Override
@@ -201,153 +349,7 @@ public class TDDCycleDetectorTest {
 			
 			@Override
 			public ITypeName getEnclosingType() {
-				return new ITypeName() {
-					
-					@Override
-					public int compareTo(ITypeName o) {
-						return 0;
-					}
-					
-					@Override
-					public boolean isUnknown() {
-						return false;
-					}
-					
-					@Override
-					public boolean isHashed() {
-						return false;
-					}
-					
-					@Override
-					public String getIdentifier() {
-						return null;
-					}
-					
-					@Override
-					public boolean hasTypeParameters() {
-						return false;
-					}
-					
-					@Override
-					public List<ITypeParameterName> getTypeParameters() {
-						return null;
-					}
-					
-					@Override
-					public boolean isVoidType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isValueType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isTypeParameter() {
-						return false;
-					}
-					
-					@Override
-					public boolean isStructType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isSimpleType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isReferenceType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isPredefined() {
-						return false;
-					}
-					
-					@Override
-					public boolean isNullableType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isNestedType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isInterfaceType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isEnumType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isDelegateType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isClassType() {
-						return false;
-					}
-					
-					@Override
-					public boolean isArray() {
-						return false;
-					}
-					
-					@Override
-					public INamespaceName getNamespace() {
-						return null;
-					}
-					
-					@Override
-					public String getName() {
-						return "nameTest";
-					}
-					
-					@Override
-					public String getFullName() {
-						return "fullNameTest";
-					}
-					
-					@Override
-					public ITypeName getDeclaringType() {
-						return null;
-					}
-					
-					@Override
-					public IAssemblyName getAssembly() {
-						return null;
-					}
-					
-					@Override
-					public ITypeParameterName asTypeParameterName() {
-						return null;
-					}
-					
-					@Override
-					public IPredefinedTypeName asPredefinedTypeName() {
-						return null;
-					}
-					
-					@Override
-					public IDelegateTypeName asDelegateTypeName() {
-						return null;
-					}
-					
-					@Override
-					public IArrayTypeName asArrayTypeName() {
-						return null;
-					}
-				};
+				return type;
 			}
 			
 			@Override

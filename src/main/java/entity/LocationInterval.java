@@ -12,8 +12,8 @@ public class LocationInterval extends BaseInterval {
 	@ManyToOne(optional=false)
 	private final EditLocation location;
 
-	public LocationInterval(Instant begin, Instant end, EditLocation location) {
-		super(begin, end);
+	public LocationInterval(Instant begin, Instant end, EditLocation location, User user) {
+		super(begin, end, user);
 		this.location = location;
 	}
  

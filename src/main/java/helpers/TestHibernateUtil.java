@@ -10,8 +10,10 @@ import org.hibernate.service.ServiceRegistry;
 
 import entity.ActivityInterval;
 import entity.EditLocation;
+import entity.FileEditTimestamp;
 import entity.LocationInterval;
-import entity.TaggedInstant;
+import entity.TestResultTimestamp;
+import entity.TestingStateTimestamp;
 import entity.User;
 
 public class TestHibernateUtil {
@@ -40,7 +42,9 @@ public class TestHibernateUtil {
             configuration.addAnnotatedClass(User.class);
             configuration.addAnnotatedClass(EditLocation.class);
             configuration.addAnnotatedClass(LocationInterval.class);
-            configuration.addAnnotatedClass(TaggedInstant.class);
+            configuration.addAnnotatedClass(TestingStateTimestamp.class);
+            configuration.addAnnotatedClass(FileEditTimestamp.class);
+            configuration.addAnnotatedClass(TestResultTimestamp.class);
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                     .applySettings(configuration.getProperties()).build();
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);

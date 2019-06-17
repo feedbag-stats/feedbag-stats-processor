@@ -4,17 +4,15 @@ import java.time.Instant;
 import java.util.Comparator;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Table;
+import javax.persistence.MappedSuperclass;
 
 import org.hibernate.annotations.*;
 import org.hibernate.annotations.CascadeType;
 
-@Entity
-@Table(name="taggedinstant")
+@MappedSuperclass
 public class TaggedInstant<T> {
 	
 	@Id
@@ -37,6 +35,7 @@ public class TaggedInstant<T> {
 	@JoinColumn(name = "property_id")
 	private final T tag;
 	
+	@Column(nullable=false)
 	private User user;
 	
 	@SuppressWarnings("rawtypes")
@@ -47,9 +46,10 @@ public class TaggedInstant<T> {
 		}
 	};
 	
-	public TaggedInstant(Instant instant, T tag) {
+	public TaggedInstant(Instant instant, T tag, User user) {
 		this.instant = instant;
 		this.tag = tag;
+		this.user = user;
 	}
 
 

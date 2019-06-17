@@ -15,8 +15,8 @@ public class ActivityInterval extends BaseInterval {
 	@Enumerated(EnumType.STRING)
 	private final ActivityType type;
 	
-	public ActivityInterval(Instant begin, Instant end, ActivityType type) {
-		super(begin, end);
+	public ActivityInterval(Instant begin, Instant end, ActivityType type, User user) {
+		super(begin, end, user);
 		this.type = type;
 	}
 	
@@ -64,7 +64,7 @@ public class ActivityInterval extends BaseInterval {
 		return "ActivityInterval["+begin.toString()+","+end.toString()+","+(type==null ? "NOTYPE" : type.toString())+"]";
 	}
 	
-	public String toJSON(String userid) {
-		return "{\"begin\":\""+begin().toString()+"\",\"end\":\""+end().toString()+"\",\"user\"=\""+userid+"\",\"type\"=\""+getType().toString()+"\"}";
+	public String toJSON() {
+		return "{\"begin\":\""+begin().toString()+"\",\"end\":\""+end().toString()+"\",\"user\"=\""+user.getName()+"\",\"type\"=\""+getType().toString()+"\"}";
 	}
 }

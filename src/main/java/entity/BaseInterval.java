@@ -28,11 +28,12 @@ public abstract class BaseInterval {
 	protected Instant end;
 	
 	@ManyToOne(optional=false)
-	protected User user;
+	protected final User user;
 	
-	public BaseInterval(Instant begin, Instant end) {
+	public BaseInterval(Instant begin, Instant end, User user) {
 		this.begin = begin;
 		this.end = end;
+		this.user = user;
 	}
 	
 	public boolean contains(BaseInterval i) {
@@ -73,10 +74,6 @@ public abstract class BaseInterval {
 
 	public void setEnd(Instant end) {
 		this.end = end;
-	}
-	
-	public void setUser(User user) {
-		this.user = user;
 	}
 	
 	public static Instant min(Instant a, Instant b) {
