@@ -44,4 +44,8 @@ public class EditLocation {
 	public String getFile() {
 		return file;
 	}
+	
+	public String toString() {
+		return solution+"."+project+"."+package1+"."+file;
+	}
 }

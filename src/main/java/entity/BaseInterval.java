@@ -76,6 +76,10 @@ public abstract class BaseInterval {
 		this.end = end;
 	}
 	
+	public String toString() {
+		return "<"+begin+", "+end+", "+user+">";
+	}
+	
 	public static Instant min(Instant a, Instant b) {
 		return a.isBefore(b) ? a : b;
 	}

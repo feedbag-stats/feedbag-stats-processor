@@ -64,4 +64,8 @@ public class User implements Serializable {
 		User user = (User) o;
 		return this.getId().equals(user.getId());
 	}
+	
+	public String toString() {
+		return "User("+id+", "+name+", "+username+", "+token+")";
+	}
 }

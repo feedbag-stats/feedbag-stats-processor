@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import entity.ActivityInterval;
-import entity.TaggedInstant;
+import entity.TaggedInstantBase;
 import entity.TestingStateTimestamp;
 import entity.User;
 
@@ -125,21 +125,21 @@ public class IntervalBuilder {
 	}
 	
 	private Set<ActivityInterval> intervalToTestingIntervals(ActivityInterval i) {
-		Set<TaggedInstant<Boolean>> stateChanges = testingState.stream().
+		Set<TestingStateTimestamp> stateChanges = testingState.stream().
 				filter(m->i.contains(m.instant()))
 				.collect(Collectors.toSet());
 		stateChanges.add(new TestingStateTimestamp(i.begin(), getTestingStateAt(i.begin()), user));
 		stateChanges.add(new TestingStateTimestamp(i.end(), false, user));
 		return stateChanges.stream()
-			.filter(t->t.tag())
+			.filter(t->t.isTesting())
 			.map(t->toTestingInterval(t, stateChanges))
 			.collect(Collectors.toSet());
 	}
 	
-	private ActivityInterval toTestingInterval(TaggedInstant<Boolean> t, Set<TaggedInstant<Boolean>> stateChanges) {
+	private ActivityInterval toTestingInterval(TestingStateTimestamp t, Set<TestingStateTimestamp> stateChanges) {
 		Instant firstInstantAfterT = stateChanges.stream()
 				.filter(i->i.instant().isAfter(t.instant()))
-				.min(TaggedInstant.INSTANT_COMPARATOR)
+				.min(TaggedInstantBase.INSTANT_COMPARATOR)
 				.map(i->i.instant()).orElse(null);
 		return new ActivityInterval(t.instant(), firstInstantAfterT, ActivityType.TESTINGSTATE, user);
 	}
@@ -147,8 +147,8 @@ public class IntervalBuilder {
 	private boolean getTestingStateAt(Instant begin) {
 		return testingState.stream()
 				.filter(i->i.instant().compareTo(begin)<=0)
-				.max(TaggedInstant.INSTANT_COMPARATOR)
-				.map(t->t.tag())
+				.max(TaggedInstantBase.INSTANT_COMPARATOR)
+				.map(t->t.isTesting())
 				.orElse(false);
 	}
 

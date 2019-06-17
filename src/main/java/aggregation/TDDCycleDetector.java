@@ -17,7 +17,6 @@ import cc.kave.commons.model.ssts.statements.IExpressionStatement;
 import entity.ActivityInterval;
 import entity.BaseInterval;
 import entity.FileEditTimestamp;
-import entity.TaggedInstant;
 import entity.TestResultTimestamp;
 import entity.User;
 
@@ -62,10 +61,10 @@ public class TDDCycleDetector {
 	}
 	
 	public int getMaxConsecutiveCycles() {
-		ArrayList<TaggedInstant<Integer>> tempResults = new ArrayList<>();
+		ArrayList<TaggedInstantGeneric<Integer>> tempResults = new ArrayList<>();
 		
 		for (ActivityInterval i : getAllCycles()) {
-			tempResults.add(new TaggedInstant<Integer>(i.end(), Math.max(maxUntil(tempResults,i.begin())+1, maxUntil(tempResults,i.end())), user));
+			tempResults.add(new TaggedInstantGeneric<Integer>(i.end(), Math.max(maxUntil(tempResults,i.begin())+1, maxUntil(tempResults,i.end()))));
 		}
 		
 		int maxTag = tempResults.stream()
@@ -81,16 +80,16 @@ public class TDDCycleDetector {
 		SortedSet<ActivityInterval> cycles = new TreeSet<>(BaseInterval.BEGIN_COMPARATOR);
 		
 		//...starts with an edited test method...
-		ArrayList<TaggedInstant<IMethodName>> startingPoints = new ArrayList<>();
+		ArrayList<TaggedInstantGeneric<IMethodName>> startingPoints = new ArrayList<>();
 		for(FileEditTimestamp t : fileEdits) {
 			for(TestResultTimestamp r : testresults) {
-				if(t.tag().equals(r.methodName().getDeclaringType().toString())) {
-					startingPoints.add(new TaggedInstant<IMethodName>(t.instant(), r.methodName(), user));
+				if(t.filename().equals(r.methodName().getDeclaringType().toString())) {
+					startingPoints.add(new TaggedInstantGeneric<IMethodName>(t.instant(), r.methodName()));
 				}
 			}
 		}
 		
-		for(TaggedInstant<IMethodName> t : startingPoints) {
+		for(TaggedInstantGeneric<IMethodName> t : startingPoints) {
 			//...is followed by a failing test...
 			Instant fail = firstTestResultAfter(false, t.tag(), t.instant());
 			if(fail == null) continue; //no fail found afterwards. no cycle
@@ -108,7 +107,7 @@ public class TDDCycleDetector {
 	
 	private Instant firstTestResultAfter(boolean pass, IMethodName methodName, Instant startingPoint) {
 		Instant first = null;
-		for(TestResultTimestamp t : testresults.stream().filter(t->t.tag()==pass && t.methodName().equals(methodName)).collect(Collectors.toSet())) {
+		for(TestResultTimestamp t : testresults.stream().filter(t->t.pass()==pass && t.methodName().equals(methodName)).collect(Collectors.toSet())) {
 			if(t.instant().isAfter(startingPoint)) {
 				if(first==null || t.instant().isBefore(first)) {
 					first = t.instant();
@@ -121,7 +120,7 @@ public class TDDCycleDetector {
 	private boolean wasEditedBetween(IMethodName methodName, Instant begin, Instant end) {
 		String filename = methodName.getDeclaringType().toString();
 		long editCount = fileEdits.stream()
-			.filter(t->t.tag().equals(filename)) //file was edited
+			.filter(t->t.filename().equals(filename)) //file was edited
 			.filter(t->t.instant().isAfter(begin))
 			.filter(t->t.instant().isBefore(end)) 
 			.count();
@@ -147,7 +146,7 @@ public class TDDCycleDetector {
 		return false;
 	}
 	
-	private int maxUntil(ArrayList<TaggedInstant<Integer>> list, Instant maxTime) {
+	private int maxUntil(ArrayList<TaggedInstantGeneric<Integer>> list, Instant maxTime) {
 		return list.stream()
 				.filter(((i)->(i.instant().isBefore(maxTime) || i.instant().equals(maxTime))))
 				.map((i)->i.tag())
