@@ -14,7 +14,7 @@ public class TestResultTimestamp extends TaggedInstantBase{
 	
 	@Column
 	private final IMethodName methodName;
-	
+
 	@Column
 	private final boolean pass;
 

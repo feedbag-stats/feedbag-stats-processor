@@ -2,19 +2,12 @@ package helpers;
 
 import java.util.Properties;
 
+import entity.*;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
-
-import entity.ActivityInterval;
-import entity.EditLocation;
-import entity.FileEditTimestamp;
-import entity.LocationInterval;
-import entity.TestResultTimestamp;
-import entity.TestingStateTimestamp;
-import entity.User;
 
 public class TestHibernateUtil {
 	private static SessionFactory sessionFactory;
@@ -45,6 +38,7 @@ public class TestHibernateUtil {
             configuration.addAnnotatedClass(TestingStateTimestamp.class);
             configuration.addAnnotatedClass(FileEditTimestamp.class);
             configuration.addAnnotatedClass(TestResultTimestamp.class);
+            configuration.addAnnotatedClass(EventTimeStamp.class);
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                     .applySettings(configuration.getProperties()).build();
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);

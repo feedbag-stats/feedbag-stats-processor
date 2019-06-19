@@ -1,12 +1,6 @@
 package helpers;
 
-import entity.ActivityInterval;
-import entity.EditLocation;
-import entity.FileEditTimestamp;
-import entity.LocationInterval;
-import entity.TestResultTimestamp;
-import entity.TestingStateTimestamp;
-import entity.User;
+import entity.*;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -41,6 +35,7 @@ public class HibernateUtil {
                 configuration.addAnnotatedClass(TestingStateTimestamp.class);
                 configuration.addAnnotatedClass(FileEditTimestamp.class);
                 configuration.addAnnotatedClass(TestResultTimestamp.class);
+                configuration.addAnnotatedClass(EventTimeStamp.class);
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);
