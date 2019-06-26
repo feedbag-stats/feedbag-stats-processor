@@ -1,0 +1,37 @@
+{
+  "$type": "KaVE.Commons.Model.Events.VisualStudio.EditEvent, KaVE.Commons",
+  "Context2": {
+    "$type": "KaVE.Commons.Model.Events.CompletionEvents.Context, KaVE.Commons",
+    "TypeShape": {
+      "$type": "KaVE.Commons.Model.TypeShapes.TypeShape, KaVE.Commons",
+      "TypeHierarchy": {
+        "$type": "KaVE.Commons.Model.TypeShapes.TypeHierarchy, KaVE.Commons",
+        "Element": "0T:?",
+        "Implements": []
+      },
+      "NestedTypes": [],
+      "Delegates": [],
+      "EventHierarchies": [],
+      "Fields": [],
+      "MethodHierarchies": [],
+      "PropertyHierarchies": []
+    },
+    "SST": {
+      "$type": "[SST:SST]",
+      "EnclosingType": "0T:?",
+      "Fields": [],
+      "Properties": [],
+      "Methods": [],
+      "Events": [],
+      "Delegates": []
+    }
+  },
+  "NumberOfChanges": 8,
+  "SizeOfChanges": 424,
+  "IDESessionUUID": "1dc07540-5c03-48a7-a5e0-c9cfe3fa3338",
+  "KaVEVersion": "0.1010-Default",
+  "TriggeredAt": "2016-05-24T06:40:58.5100461+02:00",
+  "TriggeredBy": 0,
+  "Duration": "00:00:31.2984226",
+  "ActiveWindow": "0Win:vsWindowTypeToolWindow Package Manager Console"
+}

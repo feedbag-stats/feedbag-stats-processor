@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Set;
 
+import aggregation.activity.IntervalBuilder;
+import aggregation.tdd.TDDCycleDetector;
 import cc.kave.commons.model.events.IDEEvent;
 import cc.kave.commons.model.events.NavigationEvent;
 import cc.kave.commons.model.events.testrunevents.TestCaseResult;
@@ -32,28 +34,28 @@ public class DailyRecord {
 		
 		//add event to active period
 		final Instant triggeredAt = e.getTriggeredAt().toInstant();
-		activityRecord.add(triggeredAt, ActivityType.ACTIVE);
+		activityRecord.addActivity(triggeredAt, ActivityType.ACTIVE);
 		
 		//changes to testingState
 		if(e instanceof NavigationEvent) {
 			NavigationEvent n = (NavigationEvent)e;
 			String fileName = n.ActiveDocument.getFileName();
 			boolean isTestingFile = fileName.endsWith("Test.cs") || fileName.endsWith("Tests.cs");
-			activityRecord.add(triggeredAt,isTestingFile);
+			activityRecord.addTestingState(triggeredAt,isTestingFile);
 		} else if(e instanceof EditEvent) {
 			EditEvent event = (EditEvent)e;
 			//Programmer is in writing mode
-			activityRecord.add(triggeredAt, ActivityType.WRITE);
+			activityRecord.addActivity(triggeredAt, ActivityType.WRITE);
 			if(event.Context2 != null)
 				tddDetector.addEditEvent(((EditEvent)e).Context2.getSST(), triggeredAt);
 		} else if (e instanceof DebuggerEvent) {
 			//Programmer is in debugging mode
-			activityRecord.add(triggeredAt, ActivityType.DEBUG);
+			activityRecord.addActivity(triggeredAt, ActivityType.DEBUG);
 		} else if (e instanceof TestRunEvent) {
 			//add test intervals
 			TestRunEvent t = (TestRunEvent) e;
 			for(TestCaseResult i : t.Tests) {
-				activityRecord.add(new ActivityInterval(triggeredAt, triggeredAt.plus(i.Duration), ActivityType.TESTRUN, user));
+				activityRecord.addActivityInterval(new ActivityInterval(triggeredAt, triggeredAt.plus(i.Duration), ActivityType.TESTRUN, user));
 				tddDetector.addTestResult(i.TestMethod, triggeredAt, i.Result);
 			}
 			

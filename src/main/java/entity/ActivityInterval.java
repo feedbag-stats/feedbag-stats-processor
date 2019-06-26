@@ -8,12 +8,13 @@ import aggregation.ActivityType;
 
 @Entity
 @Table(name="activityinterval")
-@PrimaryKeyJoinColumn(name="id")
 public class ActivityInterval extends BaseInterval {
 	
 	@Column(nullable=false)
 	@Enumerated(EnumType.STRING)
-	private final ActivityType type;
+	private ActivityType type;
+	
+	public ActivityInterval() {super();}
 	
 	public ActivityInterval(Instant begin, Instant end, ActivityType type, User user) {
 		super(begin, end, user);

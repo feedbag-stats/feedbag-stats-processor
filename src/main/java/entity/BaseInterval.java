@@ -5,9 +5,7 @@ import java.util.Comparator;
 
 import javax.persistence.*;
 
-@Entity  
-@Table(name = "baseinterval")  
-@Inheritance(strategy=InheritanceType.JOINED)  
+@MappedSuperclass 
 public abstract class BaseInterval {
 	public static final Comparator<BaseInterval> BEGIN_COMPARATOR = new Comparator<BaseInterval>() {	
 		@Override
@@ -28,7 +26,9 @@ public abstract class BaseInterval {
 	protected Instant end;
 	
 	@ManyToOne(optional=false)
-	protected final User user;
+	protected User user;
+	
+	public BaseInterval() {}
 	
 	public BaseInterval(Instant begin, Instant end, User user) {
 		this.begin = begin;

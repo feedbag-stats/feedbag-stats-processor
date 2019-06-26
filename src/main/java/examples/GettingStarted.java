@@ -54,7 +54,7 @@ public class GettingStarted {
 		final Set<String> userZips = IoHelper.findAllZips(eventsDir);
 		System.out.printf("found %d zips\n", userZips.size());
 		
-		ExecutorService executorService = Executors.newFixedThreadPool(4); // number of threads
+		ExecutorService executorService = Executors.newFixedThreadPool(1); // number of threads
 		int numZip = 0;
 		for (String userZip : userZips) {
 			numZip++;
@@ -94,6 +94,7 @@ public class GettingStarted {
 				 * contains the Json representation of a subclass of IDEEvent.
 				 */
 				IDEEvent e = ra.getNext(IDEEvent.class);
+				//System.out.println(e.getClass().getName() + "" + userZip + " : "+numProcessedEvents);
 
 				record.setSessId(e.IDESessionUUID);
 				record.addEvent(e);
