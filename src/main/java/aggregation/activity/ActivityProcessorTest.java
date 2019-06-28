@@ -3,7 +3,6 @@ package aggregation.activity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,11 +11,9 @@ import org.hibernate.Transaction;
 import org.junit.Before;
 import org.junit.Test;
 
+import aggregation.AbstractBatchProcessor;
 import aggregation.ImportBatch;
 import cc.kave.commons.model.events.IDEEvent;
-import cc.kave.commons.model.events.userprofiles.UserProfileEvent;
-import cc.kave.commons.utils.io.IReadingArchive;
-import cc.kave.commons.utils.io.ReadingArchive;
 import entity.ActivityInterval;
 import entity.User;
 import helpers.TestHibernateUtil;
@@ -24,9 +21,6 @@ import helpers.TestHibernateUtil;
 public class ActivityProcessorTest {
 	private ActivityProcessor processor;
 	private SessionFactory factory = TestHibernateUtil.getSessionFactory();
-	UserProfileEvent e = new UserProfileEvent() {
-		
-	};
 	
 	@Before
 	public void setup() {
@@ -50,8 +44,8 @@ public class ActivityProcessorTest {
 	
 	@Test
 	public void process() {
-		ArrayList<IDEEvent> list1 = readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "intervalbuilder-1.zip");
-		ArrayList<IDEEvent> list2 = readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "intervalbuilder-2.zip");
+		ArrayList<IDEEvent> list1 = AbstractBatchProcessor.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "intervalbuilder-1.zip");
+		ArrayList<IDEEvent> list2 = AbstractBatchProcessor.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "intervalbuilder-2.zip");
 		
 		ImportBatch b1 = new ImportBatch(list1);
 		ImportBatch b2 = new ImportBatch(list2);
@@ -73,17 +67,5 @@ public class ActivityProcessorTest {
 		t.commit();
 		
 		assertEquals(2, intervals.size());
-	}
-	
-	private ArrayList<IDEEvent> readEvents(String path, String file) {
-		ArrayList<IDEEvent> list = new ArrayList<>();
-		try (IReadingArchive ra = new ReadingArchive(new File(path, file))) {
-			// ... and iterate over content.
-			while (ra.hasNext() ) {
-				IDEEvent e = ra.getNext(IDEEvent.class);
-				list.add(e);
-			}
-		}
-		return list;
 	}
 }

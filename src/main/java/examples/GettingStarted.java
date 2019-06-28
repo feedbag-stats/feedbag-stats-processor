@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,7 +62,7 @@ public class GettingStarted {
 		   // declare variables as final which will be used in method run below
 		   final int count = numZip;
 		   final String zip = userZip;
-    	   if((count==23) || count==58 || count==71 || count==76) {
+    	   if((count==23 && false) || count==58 || count==71 || count==76) {
 		   executorService.submit(new Runnable() {
 		       @Override
 		       public void run() {
@@ -81,12 +82,12 @@ public class GettingStarted {
 	}
 
 	private void processUserZip(String userZip) {
+		Instant edit = Instant.parse("2016-09-22T13:37:50.197476600Z");
+		Instant begin = Instant.parse("2016-09-22T13:45:37.801114600Z");
+		Instant end = Instant.parse("2016-09-22T13:46:16.396601Z");
 		int numProcessedEvents = 0;
 		// open the .zip file ...
 		try (IReadingArchive ra = new ReadingArchive(new File(eventsDir, userZip))) {
-			// ... and iterate over content.
-			// the iteration will stop after 200 events to speed things up, remove this
-			// guard to process all events.
 			SessionRecord record = new SessionRecord();
 			while (ra.hasNext() /*&& (numProcessedEvents++ < 20000)*/) {
 				/*
@@ -94,7 +95,9 @@ public class GettingStarted {
 				 * contains the Json representation of a subclass of IDEEvent.
 				 */
 				IDEEvent e = ra.getNext(IDEEvent.class);
-				//System.out.println(e.getClass().getName() + "" + userZip + " : "+numProcessedEvents);
+				if(e.TriggeredAt.toInstant().equals(edit) || e.TriggeredAt.toInstant().equals(begin) || e.TriggeredAt.toInstant().equals(end)) {
+					System.out.println(e.getClass().getName() + "" + userZip + " : "+numProcessedEvents);
+				}
 
 				record.setSessId(e.IDESessionUUID);
 				record.addEvent(e);

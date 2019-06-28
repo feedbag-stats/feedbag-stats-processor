@@ -1,6 +1,8 @@
 package aggregation;
 
+import java.io.File;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -8,6 +10,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import cc.kave.commons.model.events.IDEEvent;
+import cc.kave.commons.utils.io.IReadingArchive;
+import cc.kave.commons.utils.io.ReadingArchive;
 import entity.User;
 
 public abstract class AbstractBatchProcessor {
@@ -47,4 +51,16 @@ public abstract class AbstractBatchProcessor {
 	//process the new data
 	protected abstract void addNewData(Collection<IDEEvent> data);
 	protected abstract void saveChanges();
+	
+	public static ArrayList<IDEEvent> readEvents(String path, String file) {
+		ArrayList<IDEEvent> list = new ArrayList<>();
+		try (IReadingArchive ra = new ReadingArchive(new File(path, file))) {
+			// ... and iterate over content.
+			while (ra.hasNext() ) {
+				IDEEvent e = ra.getNext(IDEEvent.class);
+				list.add(e);
+			}
+		}
+		return list;
+	}
 }

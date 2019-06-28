@@ -1,29 +1,28 @@
 package entity;
 
+import java.util.Date;
 import java.time.Instant;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.commons.model.naming.codeelements.IParameterName;
-import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.commons.model.naming.types.ITypeParameterName;
 
 @Entity
 @Table(name="testresulttimestamp")
 public class TestResultTimestamp extends TaggedInstantBase{
 	
 	@Column
-	private final String methodName;
+	private String methodName;
 	
 	@Column
-	private final String declaringType;
+	private String declaringType;
 
 	@Column
-	private final boolean pass;
+	private boolean pass;
+	
+	public TestResultTimestamp() {}
 
 	public TestResultTimestamp(Instant instant, IMethodName methodName, Boolean pass, User user) {
 		super(instant, user);
@@ -42,6 +41,10 @@ public class TestResultTimestamp extends TaggedInstantBase{
 	
 	public String getDeclaringType() {
 		return declaringType;
+	}
+	
+	public Date getDate() {
+		return Date.from(instant);
 	}
 	
 	public boolean pass() {

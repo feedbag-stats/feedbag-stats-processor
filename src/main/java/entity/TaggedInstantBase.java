@@ -2,6 +2,7 @@ package entity;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -17,7 +18,7 @@ public abstract class TaggedInstantBase {
 	private Long id;
 	
 	@Column(nullable=false)
-	protected final Instant instant;
+	protected  Instant instant;
 	
 	@Column(nullable=false)
 	protected User user;
@@ -29,6 +30,8 @@ public abstract class TaggedInstantBase {
 		}
 	};
 	
+	public TaggedInstantBase() {}
+	
 	public TaggedInstantBase(Instant instant, User user) {
 		this.instant = instant;
 		this.user = user;
@@ -37,6 +40,10 @@ public abstract class TaggedInstantBase {
 
 	public Instant instant() {
 		return instant;
+	}
+	
+	public Date getDate() {
+		return Date.from(instant);
 	}
 	
 	public void setUser(User user) {

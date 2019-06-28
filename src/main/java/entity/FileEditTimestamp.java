@@ -11,7 +11,9 @@ import javax.persistence.Table;
 public class FileEditTimestamp extends TaggedInstantBase{
 	
 	@Column
-	private final String filename;
+	private String filename;
+	
+	public FileEditTimestamp() {}
 
 	public FileEditTimestamp(Instant instant, String filename, User user) {
 		super(instant, user);

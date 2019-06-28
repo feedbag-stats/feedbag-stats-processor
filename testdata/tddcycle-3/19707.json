@@ -1,0 +1,64 @@
+{
+  "$type": "KaVE.Commons.Model.Events.CompletionEvents.CompletionEvent, KaVE.Commons",
+  "Context2": {
+    "$type": "KaVE.Commons.Model.Events.CompletionEvents.Context, KaVE.Commons",
+    "TypeShape": {
+      "$type": "KaVE.Commons.Model.TypeShapes.TypeShape, KaVE.Commons",
+      "TypeHierarchy": {
+        "$type": "KaVE.Commons.Model.TypeShapes.TypeHierarchy, KaVE.Commons",
+        "Element": "0T:BoardPad.AppLogic.Test.Models.Filtering.FilterContextBuilderTests, BoardPad.AppLogic.Test",
+        "Implements": []
+      },
+      "NestedTypes": [],
+      "Delegates": [],
+      "EventHierarchies": [],
+      "Fields": [],
+      "MethodHierarchies": [],
+      "PropertyHierarchies": []
+    },
+    "SST": {
+      "$type": "[SST:SST]",
+      "EnclosingType": "0T:BoardPad.AppLogic.Test.Models.Filtering.FilterContextBuilderTests, BoardPad.AppLogic.Test",
+      "Fields": [],
+      "Properties": [],
+      "Methods": [],
+      "Events": [],
+      "Delegates": []
+    }
+  },
+  "ProposalCollection": [
+    {
+      "$type": "KaVE.Commons.Model.Events.CompletionEvents.Proposal, KaVE.Commons",
+      "Name": "0T:BoardPad.AppLogic.ViewModels.ReadingRooms.ReadingRoomSummary, BoardPad.AppLogic"
+    },
+    {
+      "$type": "KaVE.Commons.Model.Events.CompletionEvents.Proposal, KaVE.Commons",
+      "Name": "0T:i:BoardPad.Core.Services.ReadingRooms.IReadingRoom, BoardPad.Core, 1.1.0.58"
+    },
+    {
+      "$type": "KaVE.Commons.Model.Events.CompletionEvents.Proposal, KaVE.Commons",
+      "Name": "0N:BoardPad.Core"
+    }
+  ],
+  "Selections": [
+    {
+      "$type": "KaVE.Commons.Model.Events.CompletionEvents.ProposalSelection, KaVE.Commons",
+      "Proposal": {
+        "$type": "KaVE.Commons.Model.Events.CompletionEvents.Proposal, KaVE.Commons",
+        "Name": "0T:i:BoardPad.Core.Services.ReadingRooms.IReadingRoom, BoardPad.Core, 1.1.0.58"
+      },
+      "SelectedAfter": "00:00:00.0150462",
+      "Index": 18
+    }
+  ],
+  "TerminatedBy": 3,
+  "TerminatedState": 0,
+  "ProposalCount": 10698,
+  "IDESessionUUID": "fa4a1e32-d8a9-4fce-a57e-0aec4d6a25bc",
+  "KaVEVersion": "0.1013-Default",
+  "TriggeredAt": "2016-09-22T13:46:10.1974766+00:00",
+  "TriggeredBy": 4,
+  "Duration": "00:00:00.8904442",
+  "ActiveWindow": "0Win:vsWindowTypeDocument FilterContextBuilderTests.cs",
+  "ActiveDocument": "0Doc:CSharp \\BoardPad.AppLogic.Test\\Models\\Filtering\\FilterContextBuilderTests.cs"
+}

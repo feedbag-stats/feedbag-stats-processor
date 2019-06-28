@@ -1,6 +1,7 @@
 package aggregation.tdd;
 
 import java.util.Set;
+import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -38,6 +39,10 @@ public class TDDCycleDetector {
 		this.user = user;
 	}
 	
+	public void addEditEvents(Collection<FileEditTimestamp> edits) {
+		fileEdits.addAll(edits);
+	}
+	
 	public void addEditEvent(ISST sst, Instant time) {
 		if(isTestFile(sst)) {
 			fileEdits.add(new FileEditTimestamp(time, sst.getEnclosingType().toString(), user));
@@ -55,6 +60,10 @@ public class TDDCycleDetector {
 			}
 		}
 		return false;
+	}
+	
+	public void addTestResults(Collection<TestResultTimestamp> results) {
+		testresults.addAll(results);
 	}
 	
 	public void addTestResult(IMethodName name, Instant startTime, TestResult result) {
