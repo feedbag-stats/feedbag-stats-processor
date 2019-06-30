@@ -14,8 +14,8 @@ import org.junit.Test;
 import aggregation.AbstractBatchProcessor;
 import aggregation.ImportBatch;
 import cc.kave.commons.model.events.IDEEvent;
-import entity.ActivityInterval;
 import entity.User;
+import entity.activity.ActivityInterval;
 import helpers.TestHibernateUtil;
 
 public class ActivityProcessorTest {

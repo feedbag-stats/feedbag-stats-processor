@@ -3,6 +3,13 @@ package helpers;
 import java.util.Properties;
 
 import entity.*;
+import entity.activity.ActivityInterval;
+import entity.activity.TestingStateTimestamp;
+import entity.tdd.DailyTDDCycles;
+import entity.tdd.FileEditTimestamp;
+import entity.tdd.TestResultTimestamp;
+import entity.various.DailyVariousStats;
+
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -39,6 +46,7 @@ public class TestHibernateUtil {
             configuration.addAnnotatedClass(FileEditTimestamp.class);
             configuration.addAnnotatedClass(TestResultTimestamp.class);
             configuration.addAnnotatedClass(EventTimeStamp.class);
+            configuration.addAnnotatedClass(DailyVariousStats.class);
             configuration.addAnnotatedClass(DailyTDDCycles.class);
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                     .applySettings(configuration.getProperties()).build();

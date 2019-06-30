@@ -7,10 +7,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import aggregation.ActivityType;
-import entity.ActivityInterval;
 import entity.TaggedInstantBase;
-import entity.TestingStateTimestamp;
 import entity.User;
+import entity.activity.ActivityInterval;
+import entity.activity.TestingStateTimestamp;
 
 
 //receives ActivityIntervals and TaggedInstant<Boolean>s

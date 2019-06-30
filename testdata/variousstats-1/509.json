@@ -1,0 +1,54 @@
+{
+  "$type": "KaVE.Commons.Model.Events.VisualStudio.BuildEvent, KaVE.Commons",
+  "Scope": "vsBuildScopeProject",
+  "Action": "vsBuildActionBuild",
+  "Targets": [
+    {
+      "$type": "KaVE.Commons.Model.Events.VisualStudio.BuildTarget, KaVE.Commons",
+      "Project": "BoardPad.WhiteLabelling\\BoardPad.WhiteLabelling.csproj",
+      "ProjectConfiguration": "Debug",
+      "Platform": "Any CPU",
+      "SolutionConfiguration": "Debug BoardPad|iPhone",
+      "StartedAt": "2016-09-20T19:36:07.6530348+01:00",
+      "Duration": "00:00:00.0039346",
+      "Successful": true
+    },
+    {
+      "$type": "KaVE.Commons.Model.Events.VisualStudio.BuildTarget, KaVE.Commons",
+      "Project": "BoardPad.AppLogic\\BoardPad.AppLogic.csproj",
+      "ProjectConfiguration": "Debug",
+      "Platform": "Any CPU",
+      "SolutionConfiguration": "Debug BoardPad|iPhone",
+      "StartedAt": "2016-09-20T19:36:07.714049+01:00",
+      "Duration": "00:00:01.6989047",
+      "Successful": false
+    },
+    {
+      "$type": "KaVE.Commons.Model.Events.VisualStudio.BuildTarget, KaVE.Commons",
+      "Project": "BoardPad.Tests.Utilities\\BoardPad.Tests.Utilities.csproj",
+      "ProjectConfiguration": "Debug",
+      "Platform": "Any CPU",
+      "SolutionConfiguration": "Debug BoardPad|iPhone",
+      "StartedAt": "2016-09-20T19:36:09.4249731+01:00",
+      "Duration": "00:00:00.0031226",
+      "Successful": true
+    },
+    {
+      "$type": "KaVE.Commons.Model.Events.VisualStudio.BuildTarget, KaVE.Commons",
+      "Project": "BoardPad.AppLogic.Test\\BoardPad.AppLogic.Test.csproj",
+      "ProjectConfiguration": "Debug",
+      "Platform": "Any CPU",
+      "SolutionConfiguration": "Debug BoardPad|iPhone",
+      "StartedAt": "2016-09-20T19:36:09.4380849+01:00",
+      "Duration": "00:00:00.0009909",
+      "Successful": true
+    }
+  ],
+  "IDESessionUUID": "1ea58892-7d14-4329-bb6c-aca3895a38ad",
+  "KaVEVersion": "0.1013-Default",
+  "TriggeredAt": "2016-09-22T14:35:50.1974766+01:00",
+  "TriggeredBy": 0,
+  "Duration": "00:00:01.9805364",
+  "ActiveWindow": "0Win:vsWindowTypeDocument FilteringViewModelTests.cs",
+  "ActiveDocument": "0Doc:CSharp \\BoardPad.AppLogic.Test\\ViewModels\\Filtering\\FilteringViewModelTests.cs"
+}

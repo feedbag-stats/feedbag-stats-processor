@@ -7,6 +7,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
@@ -20,7 +21,7 @@ public abstract class TaggedInstantBase {
 	@Column(nullable=false)
 	protected  Instant instant;
 	
-	@Column(nullable=false)
+	@ManyToOne(optional=false)
 	protected User user;
 	
 	public static final Comparator<TaggedInstantBase> INSTANT_COMPARATOR = new Comparator<TaggedInstantBase>() {

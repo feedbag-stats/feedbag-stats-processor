@@ -82,9 +82,6 @@ public class GettingStarted {
 	}
 
 	private void processUserZip(String userZip) {
-		Instant edit = Instant.parse("2016-09-22T13:37:50.197476600Z");
-		Instant begin = Instant.parse("2016-09-22T13:45:37.801114600Z");
-		Instant end = Instant.parse("2016-09-22T13:46:16.396601Z");
 		int numProcessedEvents = 0;
 		// open the .zip file ...
 		try (IReadingArchive ra = new ReadingArchive(new File(eventsDir, userZip))) {
@@ -95,12 +92,12 @@ public class GettingStarted {
 				 * contains the Json representation of a subclass of IDEEvent.
 				 */
 				IDEEvent e = ra.getNext(IDEEvent.class);
-				if(e.TriggeredAt.toInstant().equals(edit) || e.TriggeredAt.toInstant().equals(begin) || e.TriggeredAt.toInstant().equals(end)) {
+				if(true) {
 					System.out.println(e.getClass().getName() + "" + userZip + " : "+numProcessedEvents);
 				}
 
-				record.setSessId(e.IDESessionUUID);
-				record.addEvent(e);
+//				record.setSessId(e.IDESessionUUID);
+//				record.addEvent(e);
 				numProcessedEvents++;
 				if(numProcessedEvents%10000 == 0) System.out.printf("%s\n", numProcessedEvents);
 			}

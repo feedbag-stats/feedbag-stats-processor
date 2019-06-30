@@ -1,0 +1,21 @@
+{
+  "$type": "KaVE.Commons.Model.Events.TestRunEvents.TestRunEvent, KaVE.Commons",
+  "WasAborted": false,
+  "Tests": [
+  {
+      "$type": "KaVE.Commons.Model.Events.TestRunEvents.TestCaseResult, KaVE.Commons",
+      "TestMethod": "0M:[p:void] [BoardPad.AppLogic.Test.Models.Filtering.FilterContextBuilderTests, BoardPad.AppLogic.Test].Build_WhenCalled_ShouldReturnNonNull()",
+      "Parameters": "",
+      "StartTime": "2016-09-22T13:44:04.7499896+00:00",
+      "Duration": "00:01:39.7896114",
+      "Result": 3
+    }
+    ],
+  "IDESessionUUID": "fa4a1e32-d8a9-4fce-a57e-0aec4d6a25bc",
+  "KaVEVersion": "0.1013-Default",
+  "TriggeredAt": "2016-09-22T14:35:50.1974766+01:00",
+  "TriggeredBy": 0,
+  "Duration": "01:00:06.8435326",
+  "ActiveWindow": "0Win:vsWindowTypeToolWindow Unit Test Sessions - FilteringViewModelTests",
+  "ActiveDocument": "0Doc:CSharp \\BoardPad.Features\\XAM-30_LockScreen\\XAM-126_LockTheAppliation.feature.cs"
+}

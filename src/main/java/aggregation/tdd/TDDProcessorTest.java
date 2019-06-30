@@ -13,7 +13,7 @@ import org.junit.Test;
 import aggregation.AbstractBatchProcessor;
 import aggregation.ImportBatch;
 import cc.kave.commons.model.events.IDEEvent;
-import entity.DailyTDDCycles;
+import entity.tdd.DailyTDDCycles;
 import helpers.TestHibernateUtil;
 
 public class TDDProcessorTest {

@@ -15,10 +15,10 @@ import cc.kave.commons.model.events.testrunevents.TestCaseResult;
 import cc.kave.commons.model.events.testrunevents.TestResult;
 import cc.kave.commons.model.events.testrunevents.TestRunEvent;
 import cc.kave.commons.model.events.visualstudio.EditEvent;
-import entity.DailyTDDCycles;
-import entity.FileEditTimestamp;
-import entity.TestResultTimestamp;
 import entity.User;
+import entity.tdd.DailyTDDCycles;
+import entity.tdd.FileEditTimestamp;
+import entity.tdd.TestResultTimestamp;
 
 public class TDDProcessor extends AbstractBatchProcessor{
 	

@@ -1,0 +1,17 @@
+{
+  "$type": "KaVE.Commons.Model.Events.VersionControlEvents.VersionControlEvent, KaVE.Commons",
+  "Actions": [
+    {
+      "$type": "KaVE.Commons.Model.Events.VersionControlEvents.VersionControlAction, KaVE.Commons",
+      "ExecutedAt": "2016-06-23T02:16:53-04:00",
+      "ActionType": 4
+    }
+  ],
+  "Solution": "0Sln:Clickforensics.Quartz",
+  "IDESessionUUID": "4b84a0bd-79be-4d3a-a0af-354103b60b98",
+  "KaVEVersion": "0.1010-Default",
+  "TriggeredAt": "2016-09-22T14:35:50.1974766+01:00",
+  "TriggeredBy": 0,
+  "Duration": "00:00:00",
+  "ActiveWindow": "0Win:vsWindowTypeSolutionExplorer Solution Explorer"
+}

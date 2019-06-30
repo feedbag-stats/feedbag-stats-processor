@@ -16,11 +16,11 @@ import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.CompletionExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.InvocationExpression;
 import cc.kave.commons.model.ssts.statements.IExpressionStatement;
-import entity.ActivityInterval;
 import entity.BaseInterval;
-import entity.FileEditTimestamp;
-import entity.TestResultTimestamp;
 import entity.User;
+import entity.activity.ActivityInterval;
+import entity.tdd.FileEditTimestamp;
+import entity.tdd.TestResultTimestamp;
 
 import java.time.Instant;
 import java.util.ArrayList;
