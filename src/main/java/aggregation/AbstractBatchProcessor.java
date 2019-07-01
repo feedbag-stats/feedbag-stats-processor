@@ -39,11 +39,17 @@ public abstract class AbstractBatchProcessor {
 	
 	public void process(ImportBatch batch) {
 		Transaction t = factory.getCurrentSession().beginTransaction();
-		User user = getOrCreateUser(batch.getUsername());
-		prepare(user, batch.getFirst(), batch.getLast());
-		addNewData(batch.getEvents());
-		saveChanges();
-		t.commit();
+		try {
+			User user = getOrCreateUser(batch.getUsername());
+			prepare(user, batch.getFirst(), batch.getLast());
+			addNewData(batch.getEvents());
+			saveChanges();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			t.commit();
+		}
+		
 	}
 	
 	//prepare to add the new data. eg: load all existing data for the relevant time period

@@ -65,6 +65,7 @@ public class TDDProcessor extends AbstractBatchProcessor{
 	}
 	
 	private void updateResultCount(LocalDate date) {
+		System.out.println("updating "+date.toString()+" with user "+user.toString());
 		DailyTDDCycles cycle;
 		List<DailyTDDCycles> cycles = factory.getCurrentSession().createQuery("from DailyTDDCycles t where t.user = :user and t.date = :date", DailyTDDCycles.class)
 				.setParameter("user", user)
