@@ -14,7 +14,9 @@ import entity.User;
 public class TestingStateTimestamp extends TaggedInstantBase{
 	
 	@Column
-	private final boolean isTesting;
+	private boolean isTesting;
+	
+	public TestingStateTimestamp() {}
 
 	public TestingStateTimestamp(Instant instant, Boolean isTesting, User user) {
 		super(instant, user);

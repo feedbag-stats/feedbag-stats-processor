@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import aggregation.ActivityType;
 import entity.TaggedInstantBase;
 import entity.User;
+import entity.activity.ActivityEntry;
 import entity.activity.ActivityInterval;
 import entity.activity.TestingStateTimestamp;
 
@@ -56,6 +57,12 @@ public class IntervalBuilder {
 			}
 		}
 		return matches;
+	}
+	
+	public void addActivityEntries(Collection<ActivityEntry> entries) {
+		for(ActivityEntry e : entries) {
+			addActivity(e.instant(), e.getType());
+		}
 	}
 	
 	public void addActivityInterval(ActivityInterval interval) {

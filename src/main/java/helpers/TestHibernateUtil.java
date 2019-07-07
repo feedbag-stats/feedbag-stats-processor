@@ -3,11 +3,14 @@ package helpers;
 import java.util.Properties;
 
 import entity.*;
+import entity.activity.ActivityEntry;
 import entity.activity.ActivityInterval;
 import entity.activity.TestingStateTimestamp;
 import entity.tdd.DailyTDDCycles;
 import entity.tdd.FileEditTimestamp;
 import entity.tdd.TestResultTimestamp;
+import entity.various.BuildTimestamp;
+import entity.various.CommitTimestamp;
 import entity.various.DailyVariousStats;
 
 import org.hibernate.SessionFactory;
@@ -48,16 +51,14 @@ public class TestHibernateUtil {
             configuration.addAnnotatedClass(EventTimeStamp.class);
             configuration.addAnnotatedClass(DailyVariousStats.class);
             configuration.addAnnotatedClass(DailyTDDCycles.class);
+            configuration.addAnnotatedClass(ActivityEntry.class);
+            configuration.addAnnotatedClass(BuildTimestamp.class);
+            configuration.addAnnotatedClass(CommitTimestamp.class);
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                     .applySettings(configuration.getProperties()).build();
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-    
-    public static SessionFactory newSessionFactory() {
-    	createSessionFactory();
-    	return sessionFactory;
     }
 }

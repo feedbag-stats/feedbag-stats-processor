@@ -1,106 +1,72 @@
 package aggregation.activity;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
-import aggregation.AbstractBatchProcessor;
-import aggregation.ActivityType;
-import cc.kave.commons.model.events.IDEEvent;
-import cc.kave.commons.model.events.NavigationEvent;
-import cc.kave.commons.model.events.testrunevents.TestCaseResult;
-import cc.kave.commons.model.events.testrunevents.TestRunEvent;
-import cc.kave.commons.model.events.visualstudio.DebuggerEvent;
-import cc.kave.commons.model.events.visualstudio.EditEvent;
+import aggregation.DeltaImporter;
+import aggregation.IDataProcessor;
+import aggregation.ImportBatch;
 import entity.User;
+import entity.activity.ActivityEntry;
 import entity.activity.ActivityInterval;
 import entity.activity.TestingStateTimestamp;
 
-public class ActivityProcessor extends AbstractBatchProcessor {
+public class ActivityProcessor implements IDataProcessor {
 	
-	private IntervalBuilder builder;
-	private User user;
-	private Collection<ActivityInterval> intervalsAtStart;
-	private Collection<TestingStateTimestamp> testingTimestampsAtStart;
+	private final SessionFactory factory;
 	
 	public ActivityProcessor(SessionFactory factory) {
-		super(factory);
+		this.factory = factory;
 	}
 
 	@Override
-	protected void prepare(User user, Instant begin, Instant end) {
-		this.user = user;
-		builder = new IntervalBuilder(user);
-		intervalsAtStart = factory.getCurrentSession()
-				.createQuery("from ActivityInterval i where i.end >= :begin and i.begin <= :end and i.user = :user", ActivityInterval.class)
-				.setParameter("begin", begin)
-				.setParameter("end", end)
-				.setParameter("user", user)
-				.getResultList();
-		builder.addActivityIntervals(intervalsAtStart);
-		testingTimestampsAtStart = factory.getCurrentSession()
-				.createQuery("from TestingStateTimestamp t where t.instant > :begin and t.instant < :end and t.user = :user", TestingStateTimestamp.class)
-				.setParameter("begin", begin)
-				.setParameter("end", end)
-				.setParameter("user", user)
-				.getResultList();
-		builder.addTestingStates(testingTimestampsAtStart);
-	}
-
-	@Override
-	protected void addNewData(Collection<IDEEvent> data) {
-		for(IDEEvent e : data) {
-			recordEvent(e);
-		}
-		builder.cleanIntervals();
-	}
-
-	@Override
-	protected void saveChanges() {
-		Collection<ActivityInterval> intervalsAtEnd = builder.exportRawIntervals();
-		Collection<TestingStateTimestamp> testingTimestampsAtEnd = builder.exportRawTimestamps();
-		
-		Collection<ActivityInterval> removedIntervals = intervalsAtStart.stream().filter(i->!intervalsAtEnd.contains(i)).collect(Collectors.toList());
-		Collection<ActivityInterval> notRemovedIntervals = intervalsAtEnd.stream().filter(i->intervalsAtEnd.contains(i)).collect(Collectors.toList());
-		Collection<TestingStateTimestamp> removedTimestamps = testingTimestampsAtStart.stream().filter(i->!testingTimestampsAtStart.contains(i)).collect(Collectors.toList());
-		Collection<TestingStateTimestamp> notRemovedTimestamps = testingTimestampsAtEnd.stream().filter(i->testingTimestampsAtStart.contains(i)).collect(Collectors.toList());
-		
-		Session s = factory.getCurrentSession();
-		
-		for(ActivityInterval i : removedIntervals) {s.remove(i);}
-		for(ActivityInterval i : notRemovedIntervals) {s.saveOrUpdate(i);}
-		for(TestingStateTimestamp i : removedTimestamps) {s.remove(i);}
-		for(TestingStateTimestamp i : notRemovedTimestamps) {s.saveOrUpdate(i);}
-	}
-	
-	private void recordEvent(IDEEvent e) {
-		
-		//add event to active period
-		final Instant triggeredAt = e.getTriggeredAt().toInstant();
-		builder.addActivity(triggeredAt, ActivityType.ACTIVE);
-		
-		//changes to testingState
-		if(e instanceof NavigationEvent) {
-			NavigationEvent n = (NavigationEvent)e;
-			String fileName = n.ActiveDocument.getFileName();
-			boolean isTestingFile = fileName.endsWith("Test.cs") || fileName.endsWith("Tests.cs");
-			builder.addTestingState(triggeredAt,isTestingFile);
-		} else if(e instanceof EditEvent) {
-			//Programmer is in writing mode
-			builder.addActivity(triggeredAt, ActivityType.WRITE);
-		} else if (e instanceof DebuggerEvent) {
-			//Programmer is in debugging mode
-			builder.addActivity(triggeredAt, ActivityType.DEBUG);
-		} else if (e instanceof TestRunEvent) {
-			//add test intervals
-			TestRunEvent t = (TestRunEvent) e;
-			for(TestCaseResult i : t.Tests) {
-				builder.addActivityInterval(new ActivityInterval(triggeredAt, triggeredAt.plus(i.Duration), ActivityType.TESTRUN, user));
+	public void updateData(ImportBatch batch) {
+		Transaction t = factory.getCurrentSession().beginTransaction();
+		try {
+			User user = DeltaImporter.getOrCreateUser(factory, batch.getUsername());
+			for(LocalDate day : batch.getDates()) {
+				updateDay(user, day);
 			}
-			
+			t.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			t.rollback();
+		}
+	}
+
+	private void updateDay(User user, LocalDate day) {
+		//remove previous intervals
+		Collection<ActivityInterval> intervalsToClear = factory.getCurrentSession()
+				.createQuery("from ActivityInterval i where day(i.begin) = day(:date) and month(i.begin) = month(:date) and year(i.begin) = year(:date) and i.user = :user", ActivityInterval.class)
+				.setParameter("date", day)
+				.setParameter("user", user)
+				.getResultList();
+		for(ActivityInterval i : intervalsToClear) {
+			factory.getCurrentSession().delete(i);
+		}
+		
+		//replace with new ones
+		Collection<ActivityEntry> activities = factory.getCurrentSession()
+				.createQuery("from ActivityEntry e where e.user = :user and day(e.instant) = day(:date) and month(e.instant) = month(:date) and year(e.instant) = year(:date)", ActivityEntry.class)
+				.setParameter("user", user)
+				.setParameter("date", day)
+				.getResultList();
+		Collection<TestingStateTimestamp> testingTimestamps = factory.getCurrentSession()
+				.createQuery("from TestingStateTimestamp t where day(t.instant) = day(:date) and month(t.instant) = month(:date) and year(t.instant) = year(:date) and t.user = :user", TestingStateTimestamp.class)
+				.setParameter("date", day)
+				.setParameter("user", user)
+				.getResultList();
+		IntervalBuilder builder = new IntervalBuilder(user);
+		builder.addActivityEntries(activities);
+		builder.addTestingStates(testingTimestamps);
+		
+		//save new intervals
+		Collection<ActivityInterval> intervals = builder.getVisibleIntervals();
+		for(ActivityInterval i : intervals) {
+			factory.getCurrentSession().save(i);
 		}
 	}
 

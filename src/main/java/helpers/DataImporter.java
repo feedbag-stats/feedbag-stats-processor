@@ -4,7 +4,8 @@ import java.util.Collection;
 
 import org.hibernate.SessionFactory;
 
-import aggregation.AbstractBatchProcessor;
+import aggregation.DeltaImporter;
+import aggregation.IDataProcessor;
 import aggregation.ImportBatch;
 import aggregation.activity.ActivityProcessor;
 import aggregation.tdd.TDDProcessor;
@@ -16,15 +17,17 @@ public class DataImporter {
 	
 	public static void main(String[] args) {
 		SessionFactory factory = HibernateUtil.getSessionFactory();
-		AbstractBatchProcessor[] processors = {new ActivityProcessor(factory), new TDDProcessor(factory), new VariousStatsProcessor(factory)};
+		DeltaImporter importer = new DeltaImporter(factory);
+		IDataProcessor[] processors = {new ActivityProcessor(factory), new TDDProcessor(factory), new VariousStatsProcessor(factory)};
 
-		Collection<IDEEvent> events = AbstractBatchProcessor.readEvents("/home/kitty/Desktop/uni/mp/java-cc-kave-examples-master/Events-170301-2/2016-06-10", "10.zip");
+		Collection<IDEEvent> events = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/java-cc-kave-examples-master/Events-170301-2/2016-06-10", "10.zip");
 		System.out.println(events.size()+" events found");
 		ImportBatch batch = new ImportBatch(events);
 		
-		for(AbstractBatchProcessor p : processors) {
+		importer.importData(batch);
+		for(IDataProcessor p : processors) {
 			try {
-				p.process(batch);
+				p.updateData(batch);
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {

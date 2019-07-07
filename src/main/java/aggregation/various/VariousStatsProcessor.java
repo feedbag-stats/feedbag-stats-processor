@@ -1,90 +1,90 @@
 package aggregation.various;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Collection;
-import java.util.HashMap;
-
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
-import aggregation.AbstractBatchProcessor;
-import cc.kave.commons.model.events.IDEEvent;
-import cc.kave.commons.model.events.testrunevents.TestResult;
-import cc.kave.commons.model.events.testrunevents.TestRunEvent;
-import cc.kave.commons.model.events.versioncontrolevents.VersionControlActionType;
-import cc.kave.commons.model.events.versioncontrolevents.VersionControlEvent;
-import cc.kave.commons.model.events.visualstudio.BuildEvent;
+import aggregation.DeltaImporter;
+import aggregation.IDataProcessor;
+import aggregation.ImportBatch;
 import entity.User;
+import entity.tdd.TestResultTimestamp;
+import entity.various.BuildTimestamp;
+import entity.various.CommitTimestamp;
 import entity.various.DailyVariousStats;
 
-public class VariousStatsProcessor extends AbstractBatchProcessor {
+public class VariousStatsProcessor implements IDataProcessor {
 	
-	HashMap<LocalDate, DailyVariousStats> dailyStatsMap;
-	User user;
+	private SessionFactory factory;
 
 	public VariousStatsProcessor(SessionFactory factory) {
-		super(factory);
+		this.factory = factory;
 	}
 
 	@Override
-	protected void prepare(User user, Instant begin, Instant end) {
-		dailyStatsMap = new HashMap<>();
-		this.user = user;
-		
-		LocalDate beginDate = begin.atZone(ZoneId.systemDefault()).toLocalDate();
-		LocalDate endDate = end.atZone(ZoneId.systemDefault()).toLocalDate();
-		
-		Collection<DailyVariousStats> dailies = factory.getCurrentSession()
-				.createQuery("from DailyVariousStats where user = :user and date >= :beginDate and date <= :endDate", DailyVariousStats.class)
-				.setParameter("user", user)
-				.setParameter("beginDate", beginDate)
-				.setParameter("endDate", endDate)
-				.getResultList();
-		
-		for(DailyVariousStats d : dailies) {
-			dailyStatsMap.put(d.getDate(), d);
-		}
-	}
-
-	@Override
-	protected void addNewData(Collection<IDEEvent> data) {
-		for(IDEEvent e : data) {
-			try {
-				LocalDate day = e.TriggeredAt.toLocalDate();
-				DailyVariousStats eventDay;
-				if(dailyStatsMap.containsKey(day)) {
-					eventDay = dailyStatsMap.get(day);
-				} else {
-					eventDay = new DailyVariousStats(user, day);
-					dailyStatsMap.put(day, eventDay);
-				}
-				
-				if(e instanceof BuildEvent) {
-					long duration = ((BuildEvent)e).Duration.toMillis();
-					eventDay.addBuildDuration(duration);
-					eventDay.addBuildCount(1);
-				} else if (e instanceof TestRunEvent) {
-					int tests = ((TestRunEvent)e).Tests.size();
-					eventDay.addTestRuns(tests);
-					long successfulTests = ((TestRunEvent)e).Tests.stream().filter(t->t.Result.equals(TestResult.Success)).count();
-					eventDay.addSuccessfulTests((int) successfulTests);
-				} else if (e instanceof VersionControlEvent) {
-					boolean isCommit = ((VersionControlEvent)e).Actions.stream().anyMatch(v->v.ActionType.equals(VersionControlActionType.Commit));
-					if(isCommit) {
-						eventDay.addCommits(1);
-					}
-				}
-			} catch (Exception e1) {
-				//Event had not enough information, so we just ignore it
+	public void updateData(ImportBatch batch) {
+		Transaction t = factory.getCurrentSession().beginTransaction();
+		try {
+			User user = DeltaImporter.getOrCreateUser(factory, batch.getUsername());
+			for(LocalDate day : batch.getDates()) {
+				updateDay(user, day);
 			}
+			t.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			t.rollback();
 		}
 	}
 
-	@Override
-	protected void saveChanges() {
-		for(DailyVariousStats d : dailyStatsMap.values()) {
-			factory.getCurrentSession().saveOrUpdate(d);
+	private void updateDay(User user, LocalDate day) {
+		DailyVariousStats stats = getOrCreateRecord(user, day);
+		
+		Collection<BuildTimestamp> builds = getBuilds(user, day);
+		stats.setBuildCount(builds.size());
+		stats.setTotalBuildDurationInMs(builds.stream().mapToLong(b->b.getDuration()).sum());
+		
+		Collection<TestResultTimestamp> tests = getTests(user, day);
+		stats.setTestsRun(tests.size());
+		stats.setSuccessfulTests((int)tests.stream().filter(t->t.pass()).count());
+		
+		Collection<CommitTimestamp> commits = getCommits(user, day);
+		stats.setBuildCount(commits.size());
+		
+		factory.getCurrentSession().saveOrUpdate(stats);
+	}
+
+	private Collection<BuildTimestamp> getBuilds(User user, LocalDate day) {
+		return factory.getCurrentSession().createQuery("from BuildTimestamp t where t.user = :user and day(t.instant) = day(:date) and month(t.instant) = month(:date) and year(t.instant) = year(:date)", BuildTimestamp.class)
+				.setParameter("user", user)
+				.setParameter("date", day)
+				.getResultList();
+	}
+
+	private Collection<TestResultTimestamp> getTests(User user, LocalDate day) {
+		return factory.getCurrentSession().createQuery("from TestResultTimestamp t where t.user = :user and day(t.instant) = day(:date) and month(t.instant) = month(:date) and year(t.instant) = year(:date)", TestResultTimestamp.class)
+				.setParameter("user", user)
+				.setParameter("date", day)
+				.getResultList();
+	}
+
+	private Collection<CommitTimestamp> getCommits(User user, LocalDate day) {
+		return factory.getCurrentSession().createQuery("from CommitTimestamp t where t.user = :user and day(t.instant) = day(:date) and month(t.instant) = month(:date) and year(t.instant) = year(:date)", CommitTimestamp.class)
+				.setParameter("user", user)
+				.setParameter("date", day)
+				.getResultList();
+	}
+
+	private DailyVariousStats getOrCreateRecord(User user, LocalDate day) {
+		Collection<DailyVariousStats> fetch = factory.getCurrentSession()
+				.createQuery("from DailyVariousStats where user = :user and date = :day", DailyVariousStats.class)
+				.setParameter("user", user)
+				.setParameter("day", day)
+				.getResultList();
+		if(fetch.isEmpty()) {
+			return new DailyVariousStats(user, day);
+		} else {
+			return fetch.iterator().next();
 		}
 	}
 

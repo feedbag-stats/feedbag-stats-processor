@@ -1,6 +1,7 @@
 package aggregation;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -14,14 +15,20 @@ public class ImportBatch {
 	private final String username;
 	private Instant first = null;
 	private Instant last = null;
+	private final Collection<LocalDate> dates;
 	
 	public ImportBatch(Collection<IDEEvent> events) {
 		this.events = events.stream().filter(i->i!=null).collect(Collectors.toList());
 		username = events.stream().filter(e->e instanceof UserProfileEvent).findAny().map(e->((UserProfileEvent)e).ProfileId).orElse(null);
 		first = this.events.stream().map(e->e.TriggeredAt.toInstant()).min(INSTANT_COMPARATOR).orElse(null);
 		last = this.events.stream().map(e->e.TriggeredAt.toInstant()).max(INSTANT_COMPARATOR).orElse(null);
+		dates = this.events.stream().map(e->e.TriggeredAt.toLocalDate()).distinct().collect(Collectors.toList());
 	}
 	
+	public Collection<LocalDate> getDates() {
+		return dates;
+	}
+
 	public Collection<IDEEvent> getEvents() {
 		return events;
 	}

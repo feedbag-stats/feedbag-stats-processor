@@ -56,47 +56,47 @@ public class DailyVariousStats {
 	public LocalDate getDate() {
 		return date;
 	}
-
+	
 	public long getTotalBuildDurationInMs() {
 		return totalBuildDurationInMs;
 	}
-	
-	public void addBuildDuration(long additionalMs) {
-		totalBuildDurationInMs += additionalMs;
+
+	public void setTotalBuildDurationInMs(long totalBuildDurationInMs) {
+		this.totalBuildDurationInMs = totalBuildDurationInMs;
 	}
 
 	public int getBuildCount() {
 		return buildCount;
 	}
-	
-	public void addBuildCount(int n) {
-		buildCount += n;
+
+	public void setBuildCount(int buildCount) {
+		this.buildCount = buildCount;
 	}
 
 	public int getTestsRun() {
 		return testsRun;
 	}
-	
-	public void addTestRuns(int n) {
-		testsRun += n;
-	}
 
-	public int getCommits() {
-		return commits;
-	}
-	
-	public void addCommits(int n) {
-		commits += n;
+	public void setTestsRun(int testsRun) {
+		this.testsRun = testsRun;
 	}
 
 	public int getSuccessfulTests() {
 		return successfulTests;
 	}
 
-	public void addSuccessfulTests(int n) {
-		successfulTests += n;
+	public void setSuccessfulTests(int successfulTests) {
+		this.successfulTests = successfulTests;
 	}
-	
+
+	public int getCommits() {
+		return commits;
+	}
+
+	public void setCommits(int commits) {
+		this.commits = commits;
+	}
+
 	public String toString() {
 		return "DailyVariousStats["+user+" date:"+date+" buildDur:"+totalBuildDurationInMs+" buildCount:"+buildCount+" testsRun:"+testsRun+" passes:"+successfulTests+" commits:"+commits+"]";
 	}

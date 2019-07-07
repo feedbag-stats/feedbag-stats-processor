@@ -1,11 +1,14 @@
 package helpers;
 
 import entity.*;
+import entity.activity.ActivityEntry;
 import entity.activity.ActivityInterval;
 import entity.activity.TestingStateTimestamp;
 import entity.tdd.DailyTDDCycles;
 import entity.tdd.FileEditTimestamp;
 import entity.tdd.TestResultTimestamp;
+import entity.various.BuildTimestamp;
+import entity.various.CommitTimestamp;
 import entity.various.DailyVariousStats;
 
 import org.hibernate.SessionFactory;
@@ -30,9 +33,9 @@ public class HibernateUtil {
                 settings.put(Environment.USER, "feedbag");
                 settings.put(Environment.PASS, "Fq23rn9*");
                 settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
-                settings.put(Environment.SHOW_SQL, "true");
+                settings.put(Environment.SHOW_SQL, "false");
                 settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-                settings.put(Environment.HBM2DDL_AUTO, "update");
+                settings.put(Environment.HBM2DDL_AUTO, "create");
                 configuration.setProperties(settings);
                 configuration.addAnnotatedClass(ActivityInterval.class);
                 configuration.addAnnotatedClass(User.class);
@@ -44,6 +47,9 @@ public class HibernateUtil {
                 configuration.addAnnotatedClass(EventTimeStamp.class);
                 configuration.addAnnotatedClass(DailyTDDCycles.class);
                 configuration.addAnnotatedClass(DailyVariousStats.class);
+                configuration.addAnnotatedClass(ActivityEntry.class);
+                configuration.addAnnotatedClass(BuildTimestamp.class);
+                configuration.addAnnotatedClass(CommitTimestamp.class);
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);
