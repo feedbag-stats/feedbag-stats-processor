@@ -8,6 +8,7 @@ import org.hibernate.Transaction;
 import aggregation.DeltaImporter;
 import aggregation.IDataProcessor;
 import aggregation.ImportBatch;
+import entity.TaggedInstantBase;
 import entity.User;
 import entity.tdd.TestResultTimestamp;
 import entity.various.BuildTimestamp;
@@ -47,6 +48,7 @@ public class VariousStatsProcessor implements IDataProcessor {
 		Collection<TestResultTimestamp> tests = getTests(user, day);
 		stats.setTestsRun(tests.size());
 		stats.setSuccessfulTests((int)tests.stream().filter(t->t.pass()).count());
+		stats.setTestsFixed(computeFixedTests(tests));
 		
 		Collection<CommitTimestamp> commits = getCommits(user, day);
 		stats.setBuildCount(commits.size());
@@ -73,6 +75,18 @@ public class VariousStatsProcessor implements IDataProcessor {
 				.setParameter("user", user)
 				.setParameter("date", day)
 				.getResultList();
+	}
+
+	private int computeFixedTests(Collection<TestResultTimestamp> tests) {
+		return (int)tests.stream()
+			.filter(t->!t.pass()) //failed tests
+			.map(t->tests.stream() //for each, find if next test is pass or fail?
+					.filter(s->s.getIdentifier().equals(t.getIdentifier()))
+					.filter(s->s.instant().isAfter(t.instant()))
+					.min(TaggedInstantBase.INSTANT_COMPARATOR)
+					.filter(s->s.pass()).isPresent()) //did test pass?
+			.filter(b->b) //only count if fixed
+			.count();
 	}
 
 	private DailyVariousStats getOrCreateRecord(User user, LocalDate day) {

@@ -32,6 +32,8 @@ public class DailyVariousStats {
 	@Column(nullable=false)
 	private int buildCount = 0;
 	
+	@Column(nullable=false)
+	private int testsFixed = 0;
 
 	@Column(nullable=false)
 	private int testsRun = 0;
@@ -95,6 +97,14 @@ public class DailyVariousStats {
 
 	public void setCommits(int commits) {
 		this.commits = commits;
+	}
+
+	public int getTestsFixed() {
+		return testsFixed;
+	}
+
+	public void setTestsFixed(int testsFixed) {
+		this.testsFixed = testsFixed;
 	}
 
 	public String toString() {

@@ -4,6 +4,8 @@ import entity.*;
 import entity.activity.ActivityEntry;
 import entity.activity.ActivityInterval;
 import entity.activity.TestingStateTimestamp;
+import entity.location.LocationInterval;
+import entity.location.LocationTimestamp;
 import entity.tdd.DailyTDDCycles;
 import entity.tdd.FileEditTimestamp;
 import entity.tdd.TestResultTimestamp;
@@ -39,7 +41,6 @@ public class HibernateUtil {
                 configuration.setProperties(settings);
                 configuration.addAnnotatedClass(ActivityInterval.class);
                 configuration.addAnnotatedClass(User.class);
-                configuration.addAnnotatedClass(EditLocation.class);
                 configuration.addAnnotatedClass(LocationInterval.class);
                 configuration.addAnnotatedClass(TestingStateTimestamp.class);
                 configuration.addAnnotatedClass(FileEditTimestamp.class);
@@ -50,6 +51,7 @@ public class HibernateUtil {
                 configuration.addAnnotatedClass(ActivityEntry.class);
                 configuration.addAnnotatedClass(BuildTimestamp.class);
                 configuration.addAnnotatedClass(CommitTimestamp.class);
+                configuration.addAnnotatedClass(LocationTimestamp.class);
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);

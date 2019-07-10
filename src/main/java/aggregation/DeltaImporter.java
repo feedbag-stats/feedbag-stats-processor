@@ -8,6 +8,7 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import aggregation.location.LocationLevel;
 import cc.kave.commons.model.events.IDEEvent;
 import cc.kave.commons.model.events.NavigationEvent;
 import cc.kave.commons.model.events.completionevents.CompletionEvent;
@@ -19,11 +20,14 @@ import cc.kave.commons.model.events.versioncontrolevents.VersionControlEvent;
 import cc.kave.commons.model.events.visualstudio.BuildEvent;
 import cc.kave.commons.model.events.visualstudio.DebuggerEvent;
 import cc.kave.commons.model.events.visualstudio.EditEvent;
+import cc.kave.commons.model.events.visualstudio.SolutionAction;
+import cc.kave.commons.model.events.visualstudio.SolutionEvent;
 import cc.kave.commons.utils.io.IReadingArchive;
 import cc.kave.commons.utils.io.ReadingArchive;
 import entity.User;
 import entity.activity.ActivityEntry;
 import entity.activity.TestingStateTimestamp;
+import entity.location.LocationTimestamp;
 import entity.tdd.FileEditTimestamp;
 import entity.tdd.TestResultTimestamp;
 import entity.various.BuildTimestamp;
@@ -62,8 +66,11 @@ public class DeltaImporter {
 				} else if(e instanceof NavigationEvent) {
 					NavigationEvent n = (NavigationEvent)e;
 					String fileName = n.ActiveDocument.getFileName();
+					String packageName = packageName(n.ActiveDocument.getFileName());
 					boolean isTestingFile = fileName.endsWith("Test.cs") || fileName.endsWith("Tests.cs");
 					factory.getCurrentSession().save(new TestingStateTimestamp(e.TriggeredAt.toInstant(), isTestingFile, user));
+					factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), fileName, LocationLevel.FILE));
+					factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), packageName, LocationLevel.PACKAGE));
 				} else if (e instanceof DebuggerEvent) {
 					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), ActivityType.DEBUG, user));
 				} else if(e instanceof BuildEvent) {
@@ -74,6 +81,13 @@ public class DeltaImporter {
 					if(isCommit) {
 						factory.getCurrentSession().save(new CommitTimestamp(e.TriggeredAt.toInstant(), user));
 					}
+				} else if (e instanceof SolutionEvent) {
+					SolutionEvent s = (SolutionEvent)e;
+					if(s.Action.equals(SolutionAction.OpenSolution)) {
+						factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), s.Target.getIdentifier(), LocationLevel.SOLUTION));
+					} else if (s.Action.equals(SolutionAction.AddProject)) {
+						factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), s.Target.getIdentifier(), LocationLevel.PROJECT));
+					}
 				}
 			}
 			
@@ -82,6 +96,10 @@ public class DeltaImporter {
 			e.printStackTrace();
 			t.rollback();
 		}
+	}
+	
+	public static String packageName(String filename) {
+		return filename.substring(0, filename.lastIndexOf("\\"));
 	}
 	
 	public static User getOrCreateUser(SessionFactory factory, String username) {

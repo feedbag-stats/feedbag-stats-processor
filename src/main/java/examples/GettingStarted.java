@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import aggregation.Pair;
 import aggregation.SessionRecord;
 import cc.kave.commons.model.events.IDEEvent;
+import cc.kave.commons.model.events.visualstudio.SolutionEvent;
 import cc.kave.commons.utils.io.IReadingArchive;
 import cc.kave.commons.utils.io.ReadingArchive;
 
@@ -92,7 +93,7 @@ public class GettingStarted {
 				 * contains the Json representation of a subclass of IDEEvent.
 				 */
 				IDEEvent e = ra.getNext(IDEEvent.class);
-				if(true) {
+				if(e instanceof SolutionEvent) {
 					System.out.println(e.getClass().getName() + "" + userZip + " : "+numProcessedEvents);
 				}
 

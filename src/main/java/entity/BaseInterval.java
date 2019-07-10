@@ -16,7 +16,6 @@ public abstract class BaseInterval {
 	
 	@Id
 	@GeneratedValue
-	@Column(name="id")
 	private Long id;
 	
 	@Column(nullable = false)
