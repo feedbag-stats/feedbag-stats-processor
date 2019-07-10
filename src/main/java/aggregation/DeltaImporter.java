@@ -24,6 +24,7 @@ import cc.kave.commons.model.events.visualstudio.SolutionAction;
 import cc.kave.commons.model.events.visualstudio.SolutionEvent;
 import cc.kave.commons.utils.io.IReadingArchive;
 import cc.kave.commons.utils.io.ReadingArchive;
+import entity.AllEvents;
 import entity.User;
 import entity.activity.ActivityEntry;
 import entity.activity.TestingStateTimestamp;
@@ -50,6 +51,7 @@ public class DeltaImporter {
 			for(IDEEvent e : batch.getEvents()) {
 				if(numProcessed++%1000==0) System.out.println(numProcessed+" events processed");
 				factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), ActivityType.ACTIVE, user));
+				factory.getCurrentSession().save(new AllEvents(e.TriggeredAt.toInstant(), user, e.getClass().toString()));
 				
 				if(e instanceof EditEvent) {
 					if(((EditEvent)e).Context2 != null) {
