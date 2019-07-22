@@ -8,8 +8,10 @@ import org.hibernate.Transaction;
 import aggregation.DeltaImporter;
 import aggregation.IDataProcessor;
 import aggregation.ImportBatch;
+import aggregation.location.LocationLevel;
 import entity.TaggedInstantBase;
 import entity.User;
+import entity.location.LocationTimestamp;
 import entity.tdd.TestResultTimestamp;
 import entity.various.BuildTimestamp;
 import entity.various.CommitTimestamp;
@@ -53,6 +55,12 @@ public class VariousStatsProcessor implements IDataProcessor {
 		Collection<CommitTimestamp> commits = getCommits(user, day);
 		stats.setCommits(commits.size());
 		
+		int solutionSwitches = getLocationSwitches(user, day, LocationLevel.SOLUTION);
+		stats.setSolutionSwitches(solutionSwitches);
+		
+		int packageSwitches = getLocationSwitches(user, day, LocationLevel.PACKAGE);
+		stats.setPackageSwitches(packageSwitches);
+		
 		factory.getCurrentSession().saveOrUpdate(stats);
 	}
 
@@ -75,6 +83,21 @@ public class VariousStatsProcessor implements IDataProcessor {
 				.setParameter("user", user)
 				.setParameter("date", day)
 				.getResultList();
+	}
+
+	private int getLocationSwitches(User user, LocalDate day, LocationLevel level) {
+		Collection<LocationTimestamp> locations = factory.getCurrentSession().createQuery("from LocationTimestamp t where t.user = :user and day(t.instant) = day(:date) and month(t.instant) = month(:date) and year(t.instant) = year(:date) and t.level = :level", LocationTimestamp.class)
+				.setParameter("user", user)
+				.setParameter("date", day)
+				.setParameter("level", level)
+				.getResultList();
+		//only count if new != old
+		return (int)locations.stream().filter(old->old.getLocationName()!=
+				(locations.stream().filter(l->l.instant().isAfter(old.instant()))
+						.min(TaggedInstantBase.INSTANT_COMPARATOR)
+						.map(l->l.getLocationName())
+						.orElse("")))
+				.count();
 	}
 
 	private int computeFixedTests(Collection<TestResultTimestamp> tests) {

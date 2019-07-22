@@ -1,3 +1,5 @@
+import aggregation.ProcessingManager;
+import helpers.HibernateUtil;
 
 public class Start {
 
@@ -19,11 +21,11 @@ public class Start {
 	}
 	
 	private static void add(String file) {
-		
+		new ProcessingManager(HibernateUtil.getSessionFactory()).importZip(file);
 	}
 	
 	private static void remove() {
-		
+		new ProcessingManager(HibernateUtil.getSessionFactory()).removeMarkedData();
 	}
 
 }

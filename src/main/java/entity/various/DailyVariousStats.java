@@ -28,6 +28,11 @@ public class DailyVariousStats {
 	@Column(nullable=false)
 	private long totalBuildDurationInMs = 0;
 	
+	@Column(nullable=false)
+	private int solutionSwitches = 0;
+	
+	@Column(nullable=false)
+	private int packageSwitches = 0;
 
 	@Column(nullable=false)
 	private int buildCount = 0;
@@ -105,6 +110,22 @@ public class DailyVariousStats {
 
 	public void setTestsFixed(int testsFixed) {
 		this.testsFixed = testsFixed;
+	}
+
+	public int getSolutionSwitches() {
+		return solutionSwitches;
+	}
+
+	public void setSolutionSwitches(int solutionSwitches) {
+		this.solutionSwitches = solutionSwitches;
+	}
+
+	public int getPackageSwitches() {
+		return packageSwitches;
+	}
+
+	public void setPackageSwitches(int packageSwitches) {
+		this.packageSwitches = packageSwitches;
 	}
 
 	public String toString() {
