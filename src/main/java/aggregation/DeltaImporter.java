@@ -25,6 +25,7 @@ import cc.kave.commons.model.events.visualstudio.SolutionAction;
 import cc.kave.commons.model.events.visualstudio.SolutionEvent;
 import cc.kave.commons.utils.io.IReadingArchive;
 import cc.kave.commons.utils.io.ReadingArchive;
+import entity.ActivityType;
 import entity.AllEvents;
 import entity.User;
 import entity.ZipMapping;

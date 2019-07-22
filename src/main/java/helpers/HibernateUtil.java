@@ -53,6 +53,7 @@ public class HibernateUtil {
                 configuration.addAnnotatedClass(CommitTimestamp.class);
                 configuration.addAnnotatedClass(LocationTimestamp.class);
                 configuration.addAnnotatedClass(AllEvents.class);
+                configuration.addAnnotatedClass(ZipMapping.class);
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);

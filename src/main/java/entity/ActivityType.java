@@ -1,4 +1,4 @@
-package aggregation;
+package entity;
 
 import java.time.Duration;
 

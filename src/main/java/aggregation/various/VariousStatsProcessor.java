@@ -51,7 +51,7 @@ public class VariousStatsProcessor implements IDataProcessor {
 		stats.setTestsFixed(computeFixedTests(tests));
 		
 		Collection<CommitTimestamp> commits = getCommits(user, day);
-		stats.setBuildCount(commits.size());
+		stats.setCommits(commits.size());
 		
 		factory.getCurrentSession().saveOrUpdate(stats);
 	}

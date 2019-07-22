@@ -3,7 +3,6 @@ package aggregation.activity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
@@ -12,21 +11,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 import aggregation.DeltaImporter;
-import aggregation.ImportBatch;
-import cc.kave.commons.model.events.IDEEvent;
+import aggregation.ProcessingManager;
 import entity.User;
 import entity.activity.ActivityInterval;
 import helpers.TestHibernateUtil;
 
 public class ActivityProcessorTest {
-	private ActivityProcessor processor;
-	private DeltaImporter importer;
+	private ProcessingManager manager;
 	private SessionFactory factory = TestHibernateUtil.getSessionFactory();
 	
 	@Before
 	public void setup() {
-		processor = new ActivityProcessor(factory);
-		importer = new DeltaImporter(factory);
+		manager = new ProcessingManager(factory);
 	}
 	
 	@Test
@@ -45,28 +41,29 @@ public class ActivityProcessorTest {
 	}
 	
 	@Test
-	public void process() {
-		Collection<IDEEvent> list1 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/intervalbuilder-1.zip");
-		Collection<IDEEvent> list2 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/intervalbuilder-2.zip");
-		
-		ImportBatch b1 = new ImportBatch(list1);
-		ImportBatch b2 = new ImportBatch(list2);
-		
-		importer.importData(b1, "");
-		processor.updateData(b1);
-		
+	public void processorTest() {
 		Transaction t = factory.getCurrentSession().beginTransaction();
+		User user = DeltaImporter.getOrCreateUser(factory, "processorTest");
+		t.commit();
+		
+		String file1 = "/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/intervalbuilder-1.zip";
+		String file2 = "/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/intervalbuilder-2.zip";
+		
+		manager.importZip(file1);
+		
+		t = factory.getCurrentSession().beginTransaction();
 		List<ActivityInterval> intervals = factory.getCurrentSession()
-				.createQuery("from ActivityInterval", ActivityInterval.class)
+				.createQuery("from ActivityInterval i where i.user = :user", ActivityInterval.class)
+				.setParameter("user", user)
 				.getResultList();
 		t.commit();
 		
-		importer.importData(b2, "");
-		processor.updateData(b2);
+		manager.importZip(file2);
 		
 		t = factory.getCurrentSession().beginTransaction();
 		intervals = factory.getCurrentSession()
-				.createQuery("from ActivityInterval", ActivityInterval.class)
+				.createQuery("from ActivityInterval i where i.user = :user", ActivityInterval.class)
+				.setParameter("user", user)
 				.getResultList();
 		t.commit();
 		System.out.println(intervals);

@@ -4,7 +4,7 @@ import java.time.Instant;
 
 import javax.persistence.*;
 
-import aggregation.ActivityType;
+import entity.ActivityType;
 import entity.BaseInterval;
 import entity.User;
 

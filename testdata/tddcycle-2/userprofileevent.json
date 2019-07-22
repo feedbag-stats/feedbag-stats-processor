@@ -1,6 +1,6 @@
 {
   "$type": "KaVE.Commons.Model.Events.UserProfiles.UserProfileEvent, KaVE.Commons",
-  "ProfileId": "be003945-099b-4341-9a35-d1803ffcd6af",
+  "ProfileId": "testCycles",
   "Education": 0,
   "Position": 0,
   "ProjectsCourses": false,

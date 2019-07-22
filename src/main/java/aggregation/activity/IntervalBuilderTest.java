@@ -7,7 +7,7 @@ import java.time.Instant;
 import org.junit.Before;
 import org.junit.Test;
 
-import aggregation.ActivityType;
+import entity.ActivityType;
 
 public class IntervalBuilderTest {
 	private ActivityType active = ActivityType.ACTIVE;

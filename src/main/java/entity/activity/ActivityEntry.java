@@ -1,6 +1,6 @@
 package entity.activity;
 
-import aggregation.ActivityType;
+import entity.ActivityType;
 import entity.TaggedInstantBase;
 import entity.User;
 

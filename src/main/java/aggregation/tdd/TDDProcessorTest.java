@@ -2,7 +2,6 @@ package aggregation.tdd;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
@@ -11,61 +10,60 @@ import org.junit.Before;
 import org.junit.Test;
 
 import aggregation.DeltaImporter;
-import aggregation.ImportBatch;
-import cc.kave.commons.model.events.IDEEvent;
+import aggregation.ProcessingManager;
+import entity.User;
 import entity.tdd.DailyTDDCycles;
 import helpers.TestHibernateUtil;
 
 public class TDDProcessorTest {
 	private SessionFactory factory = TestHibernateUtil.getSessionFactory();
-	private DeltaImporter importer;
-	private TDDProcessor processor;
+	private ProcessingManager manager;
 	
 	@Before
 	public void setup() {
-		importer = new DeltaImporter(factory);
-		processor = new TDDProcessor(factory);
+		manager = new ProcessingManager(factory);
 	}
 	
 	@Test
 	public void testCycles() {
-		Collection<IDEEvent> events = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/tddcycle-1.zip");
-		Collection<IDEEvent> events2 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/tddcycle-2.zip");
-		Collection<IDEEvent> events3 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/tddcycle-3.zip");
-		ImportBatch batch = new ImportBatch(events);
-		ImportBatch batch2 = new ImportBatch(events2);
-		ImportBatch batch3 = new ImportBatch(events3);
-		
-		importer.importData(batch, "");
-		processor.updateData(batch);
-		
 		Transaction t = factory.getCurrentSession().beginTransaction();
+		User user = DeltaImporter.getOrCreateUser(factory, "testCycles");
+		t.commit();
+		
+		String file1 = "/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/tddcycle-1.zip";
+		String file2 = "/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/tddcycle-2.zip";
+		String file3 = "/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/tddcycle-3.zip";
+		
+		manager.importZip(file1);
+		
+		t = factory.getCurrentSession().beginTransaction();
 		List<DailyTDDCycles> cycles = factory.getCurrentSession()
-				.createQuery("from DailyTDDCycles", DailyTDDCycles.class)
+				.createQuery("from DailyTDDCycles d where d.user = :user", DailyTDDCycles.class)
+				.setParameter("user", user)
 				.getResultList();
 		t.commit();
 		
 		assertEquals(1, cycles.size());
 		assertEquals(1, cycles.get(0).getCycleCount());
 		
-		importer.importData(batch2, "");
-		processor.updateData(batch2);
+		manager.importZip(file2);
 		
 		t = factory.getCurrentSession().beginTransaction();
 		cycles = factory.getCurrentSession()
-				.createQuery("from DailyTDDCycles", DailyTDDCycles.class)
+				.createQuery("from DailyTDDCycles d where d.user = :user", DailyTDDCycles.class)
+				.setParameter("user", user)
 				.getResultList();
 		t.commit();
 		
 		assertEquals(1, cycles.size());
 		assertEquals(2, cycles.get(0).getCycleCount());
 		
-		importer.importData(batch3, "");
-		processor.updateData(batch3);
+		manager.importZip(file3);
 		
 		t = factory.getCurrentSession().beginTransaction();
 		cycles = factory.getCurrentSession()
-				.createQuery("from DailyTDDCycles", DailyTDDCycles.class)
+				.createQuery("from DailyTDDCycles d where d.user = :user", DailyTDDCycles.class)
+				.setParameter("user", user)
 				.getResultList();
 		t.commit();
 		

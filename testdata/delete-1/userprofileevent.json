@@ -1,6 +1,6 @@
 {
   "$type": "KaVE.Commons.Model.Events.UserProfiles.UserProfileEvent, KaVE.Commons",
-  "ProfileId": "testVariousStats",
+  "ProfileId": "testRemoval",
   "Education": 0,
   "Position": 0,
   "ProjectsCourses": false,
@@ -18,7 +18,7 @@
   "Comment": "",
   "IDESessionUUID": "fa4a1e32-d8a9-4fce-a57e-0aec4d6a25bc",
   "KaVEVersion": "0.1004-Default",
-  "TriggeredAt": "2016-09-22T14:35:50.1974766+01:00",
+  "TriggeredAt": "2016-08-22T14:35:50.1974766+01:00",
   "TriggeredBy": 0,
   "ActiveWindow": "0Win:vsWindowTypeToolWindow Startseite"
 }

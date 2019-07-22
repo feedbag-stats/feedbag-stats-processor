@@ -58,67 +58,67 @@ public class DataRemover {
 				.getResultList();
 		deleteAll(activityEntry);
 		Collection<ActivityInterval> activityInterval = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", ActivityInterval.class)
+				.createQuery("from ActivityInterval e where e.user in :user_list", ActivityInterval.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(activityInterval);
 		Collection<TestingStateTimestamp> TestingStateTimestamp = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", TestingStateTimestamp.class)
+				.createQuery("from TestingStateTimestamp e where e.user in :user_list", TestingStateTimestamp.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(TestingStateTimestamp);
 		Collection<LocationInterval> LocationInterval = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", LocationInterval.class)
+				.createQuery("from LocationInterval e where e.user in :user_list", LocationInterval.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(LocationInterval);
 		Collection<LocationTimestamp> LocationTimestamp = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", LocationTimestamp.class)
+				.createQuery("from LocationTimestamp e where e.user in :user_list", LocationTimestamp.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(LocationTimestamp);
 		Collection<DailyTDDCycles> DailyTDDCycles = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", DailyTDDCycles.class)
+				.createQuery("from DailyTDDCycles e where e.user in :user_list", DailyTDDCycles.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(DailyTDDCycles);
 		Collection<FileEditTimestamp> FileEditTimestamp = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", FileEditTimestamp.class)
+				.createQuery("from FileEditTimestamp e where e.user in :user_list", FileEditTimestamp.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(FileEditTimestamp);
 		Collection<TestResultTimestamp> TestResultTimestamp = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", TestResultTimestamp.class)
+				.createQuery("from TestResultTimestamp e where e.user in :user_list", TestResultTimestamp.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(TestResultTimestamp);
 		Collection<BuildTimestamp> BuildTimestamp = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", BuildTimestamp.class)
+				.createQuery("from BuildTimestamp e where e.user in :user_list", BuildTimestamp.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(BuildTimestamp);
 		Collection<CommitTimestamp> CommitTimestamp = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", CommitTimestamp.class)
+				.createQuery("from CommitTimestamp e where e.user in :user_list", CommitTimestamp.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(CommitTimestamp);
 		Collection<DailyVariousStats> DailyVariousStats = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", DailyVariousStats.class)
+				.createQuery("from DailyVariousStats e where e.user in :user_list", DailyVariousStats.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(DailyVariousStats);
 		Collection<AllEvents> AllEvents = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", AllEvents.class)
+				.createQuery("from AllEvents e where e.user in :user_list", AllEvents.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(AllEvents);
 		Collection<EventTimeStamp> EventTimeStamp = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", EventTimeStamp.class)
+				.createQuery("from EventTimeStamp e where e.user in :user_list", EventTimeStamp.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(EventTimeStamp);
 		Collection<ZipMapping> ZipMapping = factory.getCurrentSession()
-				.createQuery("from ActivityEntry e where e.user in :user_list", ZipMapping.class)
+				.createQuery("from ZipMapping e where e.user in :user_list", ZipMapping.class)
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(ZipMapping);
