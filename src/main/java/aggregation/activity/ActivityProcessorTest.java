@@ -46,13 +46,13 @@ public class ActivityProcessorTest {
 	
 	@Test
 	public void process() {
-		Collection<IDEEvent> list1 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "intervalbuilder-1.zip");
-		Collection<IDEEvent> list2 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "intervalbuilder-2.zip");
+		Collection<IDEEvent> list1 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/intervalbuilder-1.zip");
+		Collection<IDEEvent> list2 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/intervalbuilder-2.zip");
 		
 		ImportBatch b1 = new ImportBatch(list1);
 		ImportBatch b2 = new ImportBatch(list2);
 		
-		importer.importData(b1);
+		importer.importData(b1, "");
 		processor.updateData(b1);
 		
 		Transaction t = factory.getCurrentSession().beginTransaction();
@@ -61,7 +61,7 @@ public class ActivityProcessorTest {
 				.getResultList();
 		t.commit();
 		
-		importer.importData(b2);
+		importer.importData(b2, "");
 		processor.updateData(b2);
 		
 		t = factory.getCurrentSession().beginTransaction();

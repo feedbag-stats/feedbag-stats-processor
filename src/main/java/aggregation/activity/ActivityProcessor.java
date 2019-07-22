@@ -37,7 +37,7 @@ public class ActivityProcessor implements IDataProcessor {
 		}
 	}
 
-	private void updateDay(User user, LocalDate day) {
+	public void updateDay(User user, LocalDate day) {
 		//remove previous intervals
 		Collection<ActivityInterval> intervalsToClear = factory.getCurrentSession()
 				.createQuery("from ActivityInterval i where day(i.begin) = day(:date) and month(i.begin) = month(:date) and year(i.begin) = year(:date) and i.user = :user", ActivityInterval.class)

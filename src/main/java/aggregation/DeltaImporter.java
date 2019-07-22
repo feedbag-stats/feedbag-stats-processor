@@ -1,6 +1,7 @@
 package aggregation;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +27,7 @@ import cc.kave.commons.utils.io.IReadingArchive;
 import cc.kave.commons.utils.io.ReadingArchive;
 import entity.AllEvents;
 import entity.User;
+import entity.ZipMapping;
 import entity.activity.ActivityEntry;
 import entity.activity.TestingStateTimestamp;
 import entity.location.LocationTimestamp;
@@ -42,57 +44,64 @@ public class DeltaImporter {
 		this.factory = factory;
 	}
 	
-	public void importData(ImportBatch batch) {
+	public void importData(ImportBatch batch, String zipname) {
 		Transaction t = factory.getCurrentSession().beginTransaction();
 		try {
 			User user = getOrCreateUser(factory, batch.getUsername());
 			
+			for(LocalDate day : batch.getDates()) {
+				factory.getCurrentSession().save(new ZipMapping(user, zipname, day));
+			}
+			
 			int numProcessed = 0;
 			for(IDEEvent e : batch.getEvents()) {
-				if(numProcessed++%1000==0) System.out.println(numProcessed+" events processed");
-				factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), ActivityType.ACTIVE, user));
-				factory.getCurrentSession().save(new AllEvents(e.TriggeredAt.toInstant(), user, e.getClass().toString()));
-				
-				if(e instanceof EditEvent) {
-					if(((EditEvent)e).Context2 != null) {
+				try {
+					if(numProcessed++%1000==0) System.out.println(numProcessed+" events processed");
+					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), ActivityType.ACTIVE, user));
+					factory.getCurrentSession().save(new AllEvents(e.TriggeredAt.toInstant(), user, e.getClass().toString()));
+					
+					if(e instanceof EditEvent) {
 						factory.getCurrentSession().save(new FileEditTimestamp(e.TriggeredAt.toInstant(), ((EditEvent) e).Context2.getSST().getEnclosingType().toString(), user));
+					} else if (e instanceof CompletionEvent) {
+						CompletionEvent c = (CompletionEvent)e;
+							factory.getCurrentSession().save(new FileEditTimestamp(e.TriggeredAt.toInstant(), c.context.getSST().getEnclosingType().toString(), user));
+					} else if(e instanceof TestRunEvent) {
+						for(TestCaseResult r : ((TestRunEvent)e).Tests) {
+							factory.getCurrentSession().save(new TestResultTimestamp(e.TriggeredAt.toInstant(), r.TestMethod, r.Result.equals(TestResult.Success), user));
+						}
+					} else if(e instanceof NavigationEvent) {
+						NavigationEvent n = (NavigationEvent)e;
+						String fileName = n.ActiveDocument.getFileName();
+						String packageName = packageName(n.ActiveDocument.getFileName());
+						boolean isTestingFile = fileName.endsWith("Test.cs") || fileName.endsWith("Tests.cs");
+						factory.getCurrentSession().save(new TestingStateTimestamp(e.TriggeredAt.toInstant(), isTestingFile, user));
+						factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), fileName, LocationLevel.FILE));
+						factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), packageName, LocationLevel.PACKAGE));
+					} else if (e instanceof DebuggerEvent) {
+						factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), ActivityType.DEBUG, user));
+					} else if(e instanceof BuildEvent) {
+						long duration = ((BuildEvent)e).Duration.toMillis();
+						factory.getCurrentSession().save(new BuildTimestamp(e.TriggeredAt.toInstant(), user, duration));
+					} else if (e instanceof VersionControlEvent) {
+						boolean isCommit = ((VersionControlEvent)e).Actions.stream().anyMatch(v->v.ActionType.equals(VersionControlActionType.Commit));
+						if(isCommit) {
+							factory.getCurrentSession().save(new CommitTimestamp(e.TriggeredAt.toInstant(), user));
+						}
+					} else if (e instanceof SolutionEvent) {
+						SolutionEvent s = (SolutionEvent)e;
+						if(s.Action.equals(SolutionAction.OpenSolution)) {
+							factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), s.Target.getIdentifier(), LocationLevel.SOLUTION));
+						} else if (s.Action.equals(SolutionAction.AddProject)) {
+							factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), s.Target.getIdentifier(), LocationLevel.PROJECT));
+						}
 					}
-				} else if (e instanceof CompletionEvent) {
-					CompletionEvent c = (CompletionEvent)e;
-					if(c.context != null)
-						factory.getCurrentSession().save(new FileEditTimestamp(e.TriggeredAt.toInstant(), c.context.getSST().getEnclosingType().toString(), user));
-				} else if(e instanceof TestRunEvent) {
-					for(TestCaseResult r : ((TestRunEvent)e).Tests) {
-						factory.getCurrentSession().save(new TestResultTimestamp(e.TriggeredAt.toInstant(), r.TestMethod, r.Result.equals(TestResult.Success), user));
-					}
-				} else if(e instanceof NavigationEvent) {
-					NavigationEvent n = (NavigationEvent)e;
-					String fileName = n.ActiveDocument.getFileName();
-					String packageName = packageName(n.ActiveDocument.getFileName());
-					boolean isTestingFile = fileName.endsWith("Test.cs") || fileName.endsWith("Tests.cs");
-					factory.getCurrentSession().save(new TestingStateTimestamp(e.TriggeredAt.toInstant(), isTestingFile, user));
-					factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), fileName, LocationLevel.FILE));
-					factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), packageName, LocationLevel.PACKAGE));
-				} else if (e instanceof DebuggerEvent) {
-					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), ActivityType.DEBUG, user));
-				} else if(e instanceof BuildEvent) {
-					long duration = ((BuildEvent)e).Duration.toMillis();
-					factory.getCurrentSession().save(new BuildTimestamp(e.TriggeredAt.toInstant(), user, duration));
-				} else if (e instanceof VersionControlEvent) {
-					boolean isCommit = ((VersionControlEvent)e).Actions.stream().anyMatch(v->v.ActionType.equals(VersionControlActionType.Commit));
-					if(isCommit) {
-						factory.getCurrentSession().save(new CommitTimestamp(e.TriggeredAt.toInstant(), user));
-					}
-				} else if (e instanceof SolutionEvent) {
-					SolutionEvent s = (SolutionEvent)e;
-					if(s.Action.equals(SolutionAction.OpenSolution)) {
-						factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), s.Target.getIdentifier(), LocationLevel.SOLUTION));
-					} else if (s.Action.equals(SolutionAction.AddProject)) {
-						factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), s.Target.getIdentifier(), LocationLevel.PROJECT));
-					}
+				} catch (Exception e1) {
+					//ignore malformed events
+					System.out.println("Malformed event.");
 				}
 			}
 			
+			System.out.println("committing");
 			t.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -101,6 +110,7 @@ public class DeltaImporter {
 	}
 	
 	public static String packageName(String filename) {
+		if(filename.lastIndexOf("\\")==-1) return filename;
 		return filename.substring(0, filename.lastIndexOf("\\"));
 	}
 	
@@ -120,9 +130,11 @@ public class DeltaImporter {
 		}
 	}
 	
-	public static Collection<IDEEvent> readEvents(String path, String file) {
+	public static Collection<IDEEvent> readEvents(String zip) {
+		File f = new File(zip);
+		if(!f.isFile()) return null;
 		ArrayList<IDEEvent> list = new ArrayList<>();
-		try (IReadingArchive ra = new ReadingArchive(new File(path, file))) {
+		try (IReadingArchive ra = new ReadingArchive(new File(zip))) {
 			// ... and iterate over content.
 			while (ra.hasNext() ) {
 				IDEEvent e = ra.getNext(IDEEvent.class);

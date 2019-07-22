@@ -38,7 +38,7 @@ public class VariousStatsProcessor implements IDataProcessor {
 		}
 	}
 
-	private void updateDay(User user, LocalDate day) {
+	public void updateDay(User user, LocalDate day) {
 		DailyVariousStats stats = getOrCreateRecord(user, day);
 		
 		Collection<BuildTimestamp> builds = getBuilds(user, day);

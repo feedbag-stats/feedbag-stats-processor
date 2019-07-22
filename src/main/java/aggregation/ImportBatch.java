@@ -25,6 +25,10 @@ public class ImportBatch {
 		dates = this.events.stream().map(e->e.TriggeredAt.toLocalDate()).distinct().collect(Collectors.toList());
 	}
 	
+	public boolean batchIsValid() {
+		return username!=null && first!=null && last!=null && dates.size()>0;
+	}
+	
 	public Collection<LocalDate> getDates() {
 		return dates;
 	}

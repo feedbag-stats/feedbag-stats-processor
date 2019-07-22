@@ -33,9 +33,9 @@ public class LocationProcessorTest {
 	
 	@Test
 	public void test() {
-		Collection<IDEEvent> list1 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "location-1.zip");
+		Collection<IDEEvent> list1 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/location-1.zip");
 		ImportBatch batch = new ImportBatch(list1);
-		importer.importData(batch);
+		importer.importData(batch, "");
 		processor.updateData(batch);
 
 		Transaction t = factory.getCurrentSession().beginTransaction();

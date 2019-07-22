@@ -56,6 +56,7 @@ public class TestHibernateUtil {
             configuration.addAnnotatedClass(BuildTimestamp.class);
             configuration.addAnnotatedClass(CommitTimestamp.class);
             configuration.addAnnotatedClass(LocationTimestamp.class);
+            configuration.addAnnotatedClass(AllEvents.class);
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                     .applySettings(configuration.getProperties()).build();
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);

@@ -37,7 +37,7 @@ public class HibernateUtil {
                 settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
                 settings.put(Environment.SHOW_SQL, "false");
                 settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-                settings.put(Environment.HBM2DDL_AUTO, "create");
+                settings.put(Environment.HBM2DDL_AUTO, "update");
                 configuration.setProperties(settings);
                 configuration.addAnnotatedClass(ActivityInterval.class);
                 configuration.addAnnotatedClass(User.class);
@@ -52,6 +52,7 @@ public class HibernateUtil {
                 configuration.addAnnotatedClass(BuildTimestamp.class);
                 configuration.addAnnotatedClass(CommitTimestamp.class);
                 configuration.addAnnotatedClass(LocationTimestamp.class);
+                configuration.addAnnotatedClass(AllEvents.class);
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);

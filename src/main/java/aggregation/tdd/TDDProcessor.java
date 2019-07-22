@@ -37,7 +37,7 @@ public class TDDProcessor implements IDataProcessor{
 		}
 	}
 
-	private void updateDay(User user, LocalDate day) {
+	public void updateDay(User user, LocalDate day) {
 		DailyTDDCycles cycles = getOrCreateRecord(user, day);
 		
 		Collection<FileEditTimestamp> edits = getEdits(user, day);

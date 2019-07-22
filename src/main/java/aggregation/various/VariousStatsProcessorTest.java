@@ -30,10 +30,10 @@ public class VariousStatsProcessorTest {
 	
 	@Test
 	public void testVariousStats() {
-		Collection<IDEEvent> list = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "variousstats-1.zip");
+		Collection<IDEEvent> list = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/variousstats-1.zip");
 		ImportBatch batch = new ImportBatch(list);
 		
-		importer.importData(batch);
+		importer.importData(batch, "");
 		processor.updateData(batch);
 		
 		Transaction t = factory.getCurrentSession().beginTransaction();

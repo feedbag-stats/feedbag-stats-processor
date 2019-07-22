@@ -45,7 +45,7 @@ public class LocationProcessor implements IDataProcessor{
 		}
 	}
 
-	private void updateDay(User user, LocalDate day) {
+	public void updateDay(User user, LocalDate day) {
 		//remove previous intervals
 		Collection<LocationInterval> oldIntervals = factory.getCurrentSession()
 				.createQuery("from LocationInterval i where day(i.begin) = day(:date) and month(i.begin) = month(:date) and year(i.begin) = year(:date) and i.user = :user", LocationInterval.class)

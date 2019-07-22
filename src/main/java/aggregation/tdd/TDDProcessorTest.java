@@ -29,14 +29,14 @@ public class TDDProcessorTest {
 	
 	@Test
 	public void testCycles() {
-		Collection<IDEEvent> events = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "tddcycle-1.zip");
-		Collection<IDEEvent> events2 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "tddcycle-2.zip");
-		Collection<IDEEvent> events3 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata", "tddcycle-3.zip");
+		Collection<IDEEvent> events = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/tddcycle-1.zip");
+		Collection<IDEEvent> events2 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/tddcycle-2.zip");
+		Collection<IDEEvent> events3 = DeltaImporter.readEvents("/home/kitty/Desktop/uni/mp/feedbag-stats-processor/testdata/tddcycle-3.zip");
 		ImportBatch batch = new ImportBatch(events);
 		ImportBatch batch2 = new ImportBatch(events2);
 		ImportBatch batch3 = new ImportBatch(events3);
 		
-		importer.importData(batch);
+		importer.importData(batch, "");
 		processor.updateData(batch);
 		
 		Transaction t = factory.getCurrentSession().beginTransaction();
@@ -48,7 +48,7 @@ public class TDDProcessorTest {
 		assertEquals(1, cycles.size());
 		assertEquals(1, cycles.get(0).getCycleCount());
 		
-		importer.importData(batch2);
+		importer.importData(batch2, "");
 		processor.updateData(batch2);
 		
 		t = factory.getCurrentSession().beginTransaction();
@@ -60,7 +60,7 @@ public class TDDProcessorTest {
 		assertEquals(1, cycles.size());
 		assertEquals(2, cycles.get(0).getCycleCount());
 		
-		importer.importData(batch3);
+		importer.importData(batch3, "");
 		processor.updateData(batch3);
 		
 		t = factory.getCurrentSession().beginTransaction();
