@@ -1,5 +1,6 @@
 package entity;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
 
@@ -73,6 +74,10 @@ public abstract class BaseInterval {
 
 	public void setEnd(Instant end) {
 		this.end = end;
+	}
+	
+	public Duration getDuration() {
+		return Duration.between(begin, end);
 	}
 	
 	public String toString() {

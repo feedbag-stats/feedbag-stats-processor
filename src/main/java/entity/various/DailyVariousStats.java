@@ -49,11 +49,34 @@ public class DailyVariousStats {
 	@Column(nullable=false)
 	private int commits = 0;
 	
+	@Column(nullable=false)
+	private int numSessions = 0;
+	
+	@Column(nullable=false)
+	private int numSessionsLongerThanTenMin = 0;
+	
+	@Column(nullable=false)
+	private long totalSessionDurationMillis = 0;
+	
+	@Column(nullable=false)
+	private int breaks = 0;
+	
+	@Column(nullable=false)
+	private int filesEdited = 0;
+	
 	public DailyVariousStats() {}
 	
 	public DailyVariousStats(User user, LocalDate date) {
 		this.user = user;
 		this.date = date;
+	}
+
+	public int getFilesEdited() {
+		return filesEdited;
+	}
+
+	public void setFilesEdited(int filesEdited) {
+		this.filesEdited = filesEdited;
 	}
 
 	public User getUser() {
@@ -126,6 +149,38 @@ public class DailyVariousStats {
 
 	public void setPackageSwitches(int packageSwitches) {
 		this.packageSwitches = packageSwitches;
+	}
+
+	public int getNumSessions() {
+		return numSessions;
+	}
+
+	public void setNumSessions(int numSessions) {
+		this.numSessions = numSessions;
+	}
+
+	public int getNumSessionsLongerThanTenMin() {
+		return numSessionsLongerThanTenMin;
+	}
+
+	public void setNumSessionsLongerThanTenMin(int numSessionsLongerThanTenMin) {
+		this.numSessionsLongerThanTenMin = numSessionsLongerThanTenMin;
+	}
+
+	public long getTotalSessionDurationMillis() {
+		return totalSessionDurationMillis;
+	}
+
+	public void setTotalSessionDuration(long totalSessionDurationMillis) {
+		this.totalSessionDurationMillis = totalSessionDurationMillis;
+	}
+
+	public int getBreaks() {
+		return breaks;
+	}
+
+	public void setBreaks(int breaks) {
+		this.breaks = breaks;
 	}
 
 	public String toString() {
