@@ -9,7 +9,7 @@ import entity.BaseInterval;
 import entity.User;
 
 @Entity
-@Table(name="locationinterval")
+@Table(name="LocationInterval")
 public class LocationInterval extends BaseInterval {
 	
 	@Column

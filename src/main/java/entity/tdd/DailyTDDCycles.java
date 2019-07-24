@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import entity.User;
 
 @Entity
-@Table(name="dailytddcycles")
+@Table(name="DailyTDDCycles")
 public class DailyTDDCycles {
 	@ManyToOne(optional=false)
 	private User user;
@@ -26,7 +26,7 @@ public class DailyTDDCycles {
 	private LocalDate date;
 	
 	@Column(nullable=false)
-	private int cycleCount;
+	private int cycleCount = 0;
 	
 	public DailyTDDCycles() {}
 	public DailyTDDCycles(User u, LocalDate d, int count) {

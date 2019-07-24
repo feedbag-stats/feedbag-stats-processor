@@ -12,7 +12,7 @@ import entity.TaggedInstantBase;
 import entity.User;
 
 @Entity
-@Table(name="testresulttimestamp")
+@Table(name="TestResultTimestamp")
 public class TestResultTimestamp extends TaggedInstantBase{
 	
 	@Column

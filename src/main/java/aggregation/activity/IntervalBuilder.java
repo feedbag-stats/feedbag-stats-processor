@@ -157,7 +157,7 @@ public class IntervalBuilder {
 		Instant firstInstantAfterT = stateChanges.stream()
 				.filter(i->i.instant().isAfter(t.instant()))
 				.min(TaggedInstantBase.INSTANT_COMPARATOR)
-				.map(i->i.instant()).orElse(null);
+				.map(i->i.instant()).orElse(t.instant());
 		return new ActivityInterval(t.instant(), firstInstantAfterT, ActivityType.TESTINGSTATE, user);
 	}
 	

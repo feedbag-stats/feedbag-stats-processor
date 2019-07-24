@@ -6,7 +6,7 @@ import javax.persistence.Table;
 import java.time.Instant;
 
 @Entity
-@Table(name = "eventtimestamp")
+@Table(name = "EventTimestamp")
 public class EventTimeStamp extends TaggedInstantBase {
 
     @Column

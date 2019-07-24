@@ -1,29 +1,45 @@
-Jul 18, 2019 4:28:12 PM org.hibernate.Version logVersion
+Jul 24, 2019 11:21:35 AM org.hibernate.Version logVersion
 INFO: HHH000412: Hibernate Core {5.4.2.Final}
-Jul 18, 2019 4:28:13 PM org.hibernate.annotations.common.reflection.java.JavaReflectionManager <clinit>
+Jul 24, 2019 11:21:35 AM org.hibernate.annotations.common.reflection.java.JavaReflectionManager <clinit>
 INFO: HCANN000001: Hibernate Commons Annotations {5.1.0.Final}
-Jul 18, 2019 4:28:14 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl configure
+Jul 24, 2019 11:21:36 AM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl configure
 WARN: HHH10001002: Using Hibernate built-in connection pool (not for production use!)
-Jul 18, 2019 4:28:14 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
+Jul 24, 2019 11:21:36 AM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
 INFO: HHH10001005: using driver [com.mysql.jdbc.Driver] at URL [jdbc:mysql://feedbag.ch.inn.host.ch:3306/jkwebgm_feedbag?useSSL=false]
-Jul 18, 2019 4:28:14 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
+Jul 24, 2019 11:21:36 AM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
 INFO: HHH10001001: Connection properties: {user=feedbag, password=****}
-Jul 18, 2019 4:28:14 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
+Jul 24, 2019 11:21:36 AM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
 INFO: HHH10001003: Autocommit mode: false
-Jul 18, 2019 4:28:14 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl$PooledConnections <init>
+Jul 24, 2019 11:21:36 AM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl$PooledConnections <init>
 INFO: HHH000115: Hibernate connection pool size: 20 (min=1)
-Jul 18, 2019 4:28:15 PM org.hibernate.dialect.Dialect <init>
+Jul 24, 2019 11:21:36 AM org.hibernate.dialect.Dialect <init>
 INFO: HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
-Jul 18, 2019 4:28:17 PM org.hibernate.tuple.PojoInstantiator <init>
+Jul 24, 2019 11:21:38 AM org.hibernate.tuple.PojoInstantiator <init>
 INFO: HHH000182: No default (no-argument) constructor for class: entity.EventTimeStamp (class must be instantiated by Interceptor)
-Jul 18, 2019 4:28:17 PM org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl getIsolatedConnection
-INFO: HHH10001501: Connection obtained from JdbcConnectionAccess [org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess@1059754c] for (non-JTA) DDL execution was not in auto-commit mode; the Connection 'local transaction' will be committed and the Connection will be set into auto-commit mode.
-4545 events found
+Jul 24, 2019 11:21:38 AM org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl getIsolatedConnection
+INFO: HHH10001501: Connection obtained from JdbcConnectionAccess [org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess@27ead29e] for (non-JTA) DDL execution was not in auto-commit mode; the Connection 'local transaction' will be committed and the Connection will be set into auto-commit mode.
+20488 events found
 1 events processed
 1001 events processed
 2001 events processed
 3001 events processed
 4001 events processed
+5001 events processed
+6001 events processed
+7001 events processed
+8001 events processed
+9001 events processed
+10001 events processed
+11001 events processed
+12001 events processed
+13001 events processed
+14001 events processed
+15001 events processed
+16001 events processed
+17001 events processed
+18001 events processed
+19001 events processed
+20001 events processed
 committing
 Imported Data
 class aggregation.activity.ActivityProcessor is done processing.

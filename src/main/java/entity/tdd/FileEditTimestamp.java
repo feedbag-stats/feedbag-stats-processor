@@ -10,7 +10,7 @@ import entity.TaggedInstantBase;
 import entity.User;
 
 @Entity
-@Table(name="fileedittimestamp")
+@Table(name="FileEditTimestamp")
 public class FileEditTimestamp extends TaggedInstantBase{
 	
 	@Column

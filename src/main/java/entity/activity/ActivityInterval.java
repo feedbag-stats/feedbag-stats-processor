@@ -9,7 +9,7 @@ import entity.BaseInterval;
 import entity.User;
 
 @Entity
-@Table(name="activityinterval")
+@Table(name="ActivityInterval")
 public class ActivityInterval extends BaseInterval {
 	
 	@Column(nullable=false)
