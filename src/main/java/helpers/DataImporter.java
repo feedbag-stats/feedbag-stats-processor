@@ -21,7 +21,7 @@ public class DataImporter {
 		DeltaImporter importer = new DeltaImporter(factory);
 		IDataProcessor[] processors = {new ActivityProcessor(factory), new TDDProcessor(factory), new VariousStatsProcessor(factory), new LocationProcessor(factory)};
 		
-		String filename = "/home/kitty/Desktop/uni/mp/java-cc-kave-examples-master/Events-170301-2/2016-06-10/10.zip";
+		String filename = "/home/kitty/Desktop/uni/mp/java-cc-kave-examples-master/Events-170301-2/2016-05-18/10.zip";
 		Collection<IDEEvent> events = DeltaImporter.readEvents(filename);
 		System.out.println(events.size()+" events found");
 		ImportBatch batch = new ImportBatch(events);
