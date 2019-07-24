@@ -37,7 +37,7 @@ public class HibernateUtil {
                 settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
                 settings.put(Environment.SHOW_SQL, "false");
                 settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-                settings.put(Environment.HBM2DDL_AUTO, "update");
+                settings.put(Environment.HBM2DDL_AUTO, "create");
                 configuration.setProperties(settings);
                 configuration.addAnnotatedClass(ActivityInterval.class);
                 configuration.addAnnotatedClass(User.class);

@@ -1,22 +1,24 @@
-Jul 24, 2019 3:46:14 PM org.hibernate.Version logVersion
+Jul 24, 2019 3:56:13 PM org.hibernate.Version logVersion
 INFO: HHH000412: Hibernate Core {5.4.2.Final}
-Jul 24, 2019 3:46:14 PM org.hibernate.annotations.common.reflection.java.JavaReflectionManager <clinit>
+Jul 24, 2019 3:56:13 PM org.hibernate.annotations.common.reflection.java.JavaReflectionManager <clinit>
 INFO: HCANN000001: Hibernate Commons Annotations {5.1.0.Final}
-Jul 24, 2019 3:46:14 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl configure
+Jul 24, 2019 3:56:13 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl configure
 WARN: HHH10001002: Using Hibernate built-in connection pool (not for production use!)
-Jul 24, 2019 3:46:14 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
+Jul 24, 2019 3:56:13 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
 INFO: HHH10001005: using driver [com.mysql.jdbc.Driver] at URL [jdbc:mysql://feedbag.ch.inn.host.ch:3306/jkwebgm_feedbag?useSSL=false]
-Jul 24, 2019 3:46:14 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
+Jul 24, 2019 3:56:13 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
 INFO: HHH10001001: Connection properties: {user=feedbag, password=****}
-Jul 24, 2019 3:46:14 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
+Jul 24, 2019 3:56:13 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl buildCreator
 INFO: HHH10001003: Autocommit mode: false
-Jul 24, 2019 3:46:14 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl$PooledConnections <init>
+Jul 24, 2019 3:56:13 PM org.hibernate.engine.jdbc.connections.internal.DriverManagerConnectionProviderImpl$PooledConnections <init>
 INFO: HHH000115: Hibernate connection pool size: 20 (min=1)
-Jul 24, 2019 3:46:14 PM org.hibernate.dialect.Dialect <init>
+Jul 24, 2019 3:56:13 PM org.hibernate.dialect.Dialect <init>
 INFO: HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
-Jul 24, 2019 3:46:15 PM org.hibernate.tuple.PojoInstantiator <init>
+Jul 24, 2019 3:56:14 PM org.hibernate.tuple.PojoInstantiator <init>
 INFO: HHH000182: No default (no-argument) constructor for class: entity.EventTimeStamp (class must be instantiated by Interceptor)
-Jul 24, 2019 3:46:15 PM org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl getIsolatedConnection
-INFO: HHH10001501: Connection obtained from JdbcConnectionAccess [org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess@7bc9e6ab] for (non-JTA) DDL execution was not in auto-commit mode; the Connection 'local transaction' will be committed and the Connection will be set into auto-commit mode.
+Jul 24, 2019 3:56:14 PM org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl getIsolatedConnection
+INFO: HHH10001501: Connection obtained from JdbcConnectionAccess [org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess@51e37590] for (non-JTA) DDL execution was not in auto-commit mode; the Connection 'local transaction' will be committed and the Connection will be set into auto-commit mode.
+Jul 24, 2019 3:56:15 PM org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl getIsolatedConnection
+INFO: HHH10001501: Connection obtained from JdbcConnectionAccess [org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess@faa3fed] for (non-JTA) DDL execution was not in auto-commit mode; the Connection 'local transaction' will be committed and the Connection will be set into auto-commit mode.
 8842 events found
-1 events processed
+1 events imported

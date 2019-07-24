@@ -57,7 +57,7 @@ public class DeltaImporter {
 			int numProcessed = 0;
 			for(IDEEvent e : batch.getEvents()) {
 				try {
-					if(numProcessed++%1000==0) System.out.println(numProcessed+" events processed");
+					if(numProcessed++%1000==0) System.out.println(numProcessed+" events imported");
 					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), ActivityType.ACTIVE, user));
 					factory.getCurrentSession().save(new AllEvents(e.TriggeredAt.toInstant(), user, e.getClass().toString(), e.KaVEVersion, e.toString()));
 					
