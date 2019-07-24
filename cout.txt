@@ -22,3 +22,5 @@ Jul 24, 2019 3:56:15 PM org.hibernate.resource.transaction.backend.jdbc.internal
 INFO: HHH10001501: Connection obtained from JdbcConnectionAccess [org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess@faa3fed] for (non-JTA) DDL execution was not in auto-commit mode; the Connection 'local transaction' will be committed and the Connection will be set into auto-commit mode.
 8842 events found
 1 events imported
+1001 events imported
+2001 events imported
