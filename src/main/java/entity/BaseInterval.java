@@ -16,7 +16,7 @@ public abstract class BaseInterval {
 	};
 	
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 	
 	@Column(nullable = false)

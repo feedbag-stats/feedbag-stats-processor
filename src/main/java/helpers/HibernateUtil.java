@@ -21,7 +21,7 @@ import org.hibernate.service.ServiceRegistry;
 import java.util.Properties;
 
 public class HibernateUtil {
-    public static final int BATCH_SIZE = 1000;
+    public static final int BATCH_SIZE = 50;
 
     private static SessionFactory sessionFactory;
 
@@ -32,7 +32,7 @@ public class HibernateUtil {
                 // Hibernate settings equivalent to hibernate.cfg.xml's properties
                 Properties settings = new Properties();
                 settings.put(Environment.DRIVER, "com.mysql.jdbc.Driver");
-                settings.put(Environment.URL, "jdbc:mysql://feedbag.ch.inn.host.ch:3306/jkwebgm_feedbag?useSSL=false");
+                settings.put(Environment.URL, "jdbc:mysql://feedbag.ch.inn.host.ch:3306/jkwebgm_feedbag?useSSL=false&rewriteBatchedStatements=true");
                 settings.put(Environment.USER, "feedbag");
                 settings.put(Environment.PASS, "Fq23rn9*");
                 settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
@@ -40,6 +40,9 @@ public class HibernateUtil {
                 settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
                 settings.put(Environment.HBM2DDL_AUTO, "update");
                 settings.put(Environment.STATEMENT_BATCH_SIZE, BATCH_SIZE);
+                settings.put(Environment.GENERATE_STATISTICS, true);
+                settings.put(Environment.ORDER_INSERTS, true);
+                settings.put(Environment.ORDER_UPDATES, true);
                 configuration.setProperties(settings);
                 configuration.addAnnotatedClass(ActivityInterval.class);
                 configuration.addAnnotatedClass(User.class);
