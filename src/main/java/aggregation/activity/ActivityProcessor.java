@@ -9,8 +9,8 @@ import org.hibernate.Transaction;
 import aggregation.DeltaImporter;
 import aggregation.IDataProcessor;
 import aggregation.ImportBatch;
+import entity.ActivityEntry;
 import entity.User;
-import entity.activity.ActivityEntry;
 import entity.activity.ActivityInterval;
 import entity.activity.TestingStateTimestamp;
 

@@ -3,7 +3,6 @@ package helpers;
 import java.util.Properties;
 
 import entity.*;
-import entity.activity.ActivityEntry;
 import entity.activity.ActivityInterval;
 import entity.activity.TestingStateTimestamp;
 import entity.location.LocationInterval;
@@ -52,11 +51,10 @@ public class TestHibernateUtil {
             configuration.addAnnotatedClass(EventTimeStamp.class);
             configuration.addAnnotatedClass(DailyVariousStats.class);
             configuration.addAnnotatedClass(DailyTDDCycles.class);
-            configuration.addAnnotatedClass(ActivityEntry.class);
             configuration.addAnnotatedClass(BuildTimestamp.class);
             configuration.addAnnotatedClass(CommitTimestamp.class);
             configuration.addAnnotatedClass(LocationTimestamp.class);
-            configuration.addAnnotatedClass(AllEvents.class);
+            configuration.addAnnotatedClass(ActivityEntry.class);
             configuration.addAnnotatedClass(ZipMapping.class);
             ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                     .applySettings(configuration.getProperties()).build();

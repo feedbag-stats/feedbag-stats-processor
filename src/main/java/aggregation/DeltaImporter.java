@@ -26,10 +26,9 @@ import cc.kave.commons.model.events.visualstudio.SolutionEvent;
 import cc.kave.commons.utils.io.IReadingArchive;
 import cc.kave.commons.utils.io.ReadingArchive;
 import entity.ActivityType;
-import entity.AllEvents;
+import entity.ActivityEntry;
 import entity.User;
 import entity.ZipMapping;
-import entity.activity.ActivityEntry;
 import entity.activity.TestingStateTimestamp;
 import entity.location.LocationTimestamp;
 import entity.tdd.FileEditTimestamp;
@@ -58,8 +57,7 @@ public class DeltaImporter {
 			for(IDEEvent e : batch.getEvents()) {
 				try {
 					if(numProcessed++%1000==0) System.out.println(numProcessed+" events imported");
-					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), ActivityType.ACTIVE, user));
-					factory.getCurrentSession().save(new AllEvents(e.TriggeredAt.toInstant(), user, e.getClass().toString(), e.KaVEVersion, e.toString()));
+					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), user, e.getClass().toString(), e.KaVEVersion, e.toString(), ActivityType.ACTIVE));
 					
 					if(e instanceof EditEvent) {
 						factory.getCurrentSession().save(new FileEditTimestamp(e.TriggeredAt.toInstant(), ((EditEvent) e).Context2.getSST().getEnclosingType().toString(), user));
@@ -79,7 +77,7 @@ public class DeltaImporter {
 						factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), fileName, LocationLevel.FILE));
 						factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), packageName, LocationLevel.PACKAGE));
 					} else if (e instanceof DebuggerEvent) {
-						factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), ActivityType.DEBUG, user));
+						factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), user, e.getClass().toString(), e.KaVEVersion, e.toString(), ActivityType.DEBUG));
 					} else if(e instanceof BuildEvent) {
 						long duration = ((BuildEvent)e).Duration.toMillis();
 						factory.getCurrentSession().save(new BuildTimestamp(e.TriggeredAt.toInstant(), user, duration));

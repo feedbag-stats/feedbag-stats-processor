@@ -4,13 +4,15 @@ import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name="AllEvents")
-public class AllEvents extends TaggedInstantBase {
+@Table(name="ActivityEntry")
+public class ActivityEntry extends TaggedInstantBase {
 
 	@Column(nullable=false)
 	private String event;
@@ -22,13 +24,18 @@ public class AllEvents extends TaggedInstantBase {
 	@Type(type="text")
 	private String payload;
 	
-	public AllEvents() {}
+	@Column(nullable=false)
+	@Enumerated(EnumType.STRING)
+	private ActivityType type;
 	
-	public AllEvents(Instant i, User u, String event, String version, String payload) {
+	public ActivityEntry() {}
+	
+	public ActivityEntry(Instant i, User u, String event, String version, String payload, ActivityType type) {
 		super(i, u);
 		this.event = event;
 		this.version = version;
 		this.payload = payload;
+		this.type = type;
 	}
 	
 	public String getEvent() {
@@ -49,6 +56,14 @@ public class AllEvents extends TaggedInstantBase {
 
 	public void setPayload(String payload) {
 		this.payload = payload;
+	}
+
+	public ActivityType getType() {
+		return type;
+	}
+
+	public void setType(ActivityType type) {
+		this.type = type;
 	}
 
 }

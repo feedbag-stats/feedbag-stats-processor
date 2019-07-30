@@ -7,9 +7,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import entity.ActivityType;
+import entity.ActivityEntry;
 import entity.TaggedInstantBase;
 import entity.User;
-import entity.activity.ActivityEntry;
 import entity.activity.ActivityInterval;
 import entity.activity.TestingStateTimestamp;
 

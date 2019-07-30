@@ -24,3 +24,16 @@ INFO: HHH10001501: Connection obtained from JdbcConnectionAccess [org.hibernate.
 1 events imported
 1001 events imported
 2001 events imported
+3001 events imported
+4001 events imported
+5001 events imported
+6001 events imported
+7001 events imported
+8001 events imported
+committing
+Imported Data
+class aggregation.activity.ActivityProcessor is done processing.
+class aggregation.tdd.TDDProcessor is done processing.
+class aggregation.various.VariousStatsProcessor is done processing.
+class aggregation.location.LocationProcessor is done processing.
+Done importing!

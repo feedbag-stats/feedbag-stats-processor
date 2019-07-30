@@ -107,11 +107,6 @@ public class DataRemover {
 				.setParameterList("user_list", users)
 				.getResultList();
 		deleteAll(DailyVariousStats);
-		Collection<AllEvents> AllEvents = factory.getCurrentSession()
-				.createQuery("from AllEvents e where e.user in :user_list", AllEvents.class)
-				.setParameterList("user_list", users)
-				.getResultList();
-		deleteAll(AllEvents);
 		Collection<EventTimeStamp> EventTimeStamp = factory.getCurrentSession()
 				.createQuery("from EventTimeStamp e where e.user in :user_list", EventTimeStamp.class)
 				.setParameterList("user_list", users)
