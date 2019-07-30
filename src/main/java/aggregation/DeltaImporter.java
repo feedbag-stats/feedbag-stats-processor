@@ -62,7 +62,7 @@ public class DeltaImporter {
                         factory.getCurrentSession().clear();
                         System.out.println(numProcessed + " events imported");
                     }
-					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), user, e.getClass().toString(), e.KaVEVersion, e.toString(), ActivityType.ACTIVE));
+					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), user, e.getClass().getSimpleName(), e.KaVEVersion, e.toString(), ActivityType.ACTIVE));
 					
 					if(e instanceof EditEvent) {
 						factory.getCurrentSession().save(new FileEditTimestamp(e.TriggeredAt.toInstant(), ((EditEvent) e).Context2.getSST().getEnclosingType().toString(), user));
