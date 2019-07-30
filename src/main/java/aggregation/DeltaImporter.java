@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import helpers.HibernateUtil;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
@@ -38,7 +39,7 @@ import entity.various.CommitTimestamp;
 
 public class DeltaImporter {
 	
-	private final SessionFactory factory;
+	private SessionFactory factory;
 
 	public DeltaImporter(SessionFactory factory) {
 		this.factory = factory;
@@ -56,7 +57,11 @@ public class DeltaImporter {
 			int numProcessed = 0;
 			for(IDEEvent e : batch.getEvents()) {
 				try {
-					if(numProcessed++%1000==0) System.out.println(numProcessed+" events imported");
+					if (numProcessed++ % HibernateUtil.BATCH_SIZE == 0) {
+                        factory.getCurrentSession().flush();
+                        factory.getCurrentSession().clear();
+                        System.out.println(numProcessed + " events imported");
+                    }
 					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), user, e.getClass().toString(), e.KaVEVersion, e.toString(), ActivityType.ACTIVE));
 					
 					if(e instanceof EditEvent) {
@@ -141,6 +146,5 @@ public class DeltaImporter {
 			}
 		}
 		return list;
-}
-
+	}
 }

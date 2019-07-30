@@ -21,6 +21,8 @@ import org.hibernate.service.ServiceRegistry;
 import java.util.Properties;
 
 public class HibernateUtil {
+    public static final int BATCH_SIZE = 1000;
+
     private static SessionFactory sessionFactory;
 
     public static SessionFactory getSessionFactory() {
@@ -37,6 +39,7 @@ public class HibernateUtil {
                 settings.put(Environment.SHOW_SQL, "false");
                 settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
                 settings.put(Environment.HBM2DDL_AUTO, "update");
+                settings.put(Environment.STATEMENT_BATCH_SIZE, BATCH_SIZE);
                 configuration.setProperties(settings);
                 configuration.addAnnotatedClass(ActivityInterval.class);
                 configuration.addAnnotatedClass(User.class);
