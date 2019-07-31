@@ -6,7 +6,6 @@ public enum ActivityType {
 	//          Timeout               Min. displayed Duration  svgY svgHeight svgColour
 	ACTIVE      (Duration.ofSeconds(60), Duration.ofSeconds(5)),
 	WRITE       (Duration.ofSeconds(60), Duration.ofSeconds(5)),
-	TESTRUN     (Duration.ofSeconds(0),  Duration.ofSeconds(0)),
 	DEBUG       (Duration.ofSeconds(60), Duration.ofSeconds(5)),
 	TESTINGSTATE(Duration.ofSeconds(0),  Duration.ofSeconds(0));
 	

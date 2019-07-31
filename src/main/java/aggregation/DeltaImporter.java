@@ -62,12 +62,15 @@ public class DeltaImporter {
                         factory.getCurrentSession().clear();
                         System.out.println(numProcessed + " events imported");
                     }
-					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), user, e.getClass().getSimpleName(), e.KaVEVersion, e.toString(), ActivityType.ACTIVE));
+					
+					ActivityType type = ActivityType.ACTIVE;
 					
 					if(e instanceof EditEvent) {
 						factory.getCurrentSession().save(new FileEditTimestamp(e.TriggeredAt.toInstant(), ((EditEvent) e).Context2.getSST().getEnclosingType().toString(), user));
+						type = ActivityType.WRITE;
 					} else if (e instanceof CompletionEvent) {
 						CompletionEvent c = (CompletionEvent)e;
+						type = ActivityType.WRITE;
 							factory.getCurrentSession().save(new FileEditTimestamp(e.TriggeredAt.toInstant(), c.context.getSST().getEnclosingType().toString(), user));
 					} else if(e instanceof TestRunEvent) {
 						for(TestCaseResult r : ((TestRunEvent)e).Tests) {
@@ -82,7 +85,7 @@ public class DeltaImporter {
 						factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), fileName, LocationLevel.FILE));
 						factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), packageName, LocationLevel.PACKAGE));
 					} else if (e instanceof DebuggerEvent) {
-						factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), user, e.getClass().toString(), e.KaVEVersion, e.toString(), ActivityType.DEBUG));
+						type = ActivityType.DEBUG;
 					} else if(e instanceof BuildEvent) {
 						long duration = ((BuildEvent)e).Duration.toMillis();
 						factory.getCurrentSession().save(new BuildTimestamp(e.TriggeredAt.toInstant(), user, duration));
@@ -99,6 +102,9 @@ public class DeltaImporter {
 							factory.getCurrentSession().save(new LocationTimestamp(user, e.TriggeredAt.toInstant(), s.Target.getIdentifier(), LocationLevel.PROJECT));
 						}
 					}
+					
+					factory.getCurrentSession().save(new ActivityEntry(e.TriggeredAt.toInstant(), user, e.getClass().getSimpleName(), e.KaVEVersion, e.toString(), type));
+					
 				} catch (Exception e1) {
 					//ignore malformed events
 					System.out.println("Malformed event.");
