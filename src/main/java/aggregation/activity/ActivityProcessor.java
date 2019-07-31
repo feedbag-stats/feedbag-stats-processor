@@ -10,9 +10,11 @@ import aggregation.DeltaImporter;
 import aggregation.IDataProcessor;
 import aggregation.ImportBatch;
 import entity.ActivityEntry;
+import entity.ActivityType;
 import entity.User;
 import entity.activity.ActivityInterval;
 import entity.activity.TestingStateTimestamp;
+import entity.tdd.FileEditTimestamp;
 
 public class ActivityProcessor implements IDataProcessor {
 	
@@ -54,6 +56,11 @@ public class ActivityProcessor implements IDataProcessor {
 				.setParameter("user", user)
 				.setParameter("date", day)
 				.getResultList();
+		Collection<FileEditTimestamp> edits = factory.getCurrentSession()
+				.createQuery("from FileEditTimestamp e where e.user = :user and day(e.instant) = day(:date) and month(e.instant) = month(:date) and year(e.instant) = year(:date)", FileEditTimestamp.class)
+				.setParameter("user", user)
+				.setParameter("date", day)
+				.getResultList();
 		Collection<TestingStateTimestamp> testingTimestamps = factory.getCurrentSession()
 				.createQuery("from TestingStateTimestamp t where day(t.instant) = day(:date) and month(t.instant) = month(:date) and year(t.instant) = year(:date) and t.user = :user", TestingStateTimestamp.class)
 				.setParameter("date", day)
@@ -61,6 +68,9 @@ public class ActivityProcessor implements IDataProcessor {
 				.getResultList();
 		IntervalBuilder builder = new IntervalBuilder(user);
 		builder.addActivityEntries(activities);
+		for(FileEditTimestamp f : edits) {
+			builder.addActivity(f.instant(), ActivityType.WRITE);
+		}
 		builder.addTestingStates(testingTimestamps);
 		
 		//save new intervals

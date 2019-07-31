@@ -67,6 +67,6 @@ public class ActivityProcessorTest {
 				.getResultList();
 		t.commit();
 		System.out.println(intervals);
-		assertEquals(1, intervals.size());
+		assertEquals(2, intervals.size());
 	}
 }
