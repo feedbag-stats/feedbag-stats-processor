@@ -7,7 +7,7 @@ public enum ActivityType {
 	ACTIVE      (Duration.ofSeconds(60), Duration.ofSeconds(5)),
 	WRITE       (Duration.ofSeconds(60), Duration.ofSeconds(5)),
 	DEBUG       (Duration.ofSeconds(60), Duration.ofSeconds(5)),
-	TESTINGSTATE(Duration.ofSeconds(0),  Duration.ofSeconds(0));
+	TESTINGSTATE(Duration.ofSeconds(30),  Duration.ofSeconds(0));
 	
 	private final Duration timeoutDuration;
 	private final Duration minDisplayedDuration;

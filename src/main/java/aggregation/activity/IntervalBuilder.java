@@ -89,33 +89,35 @@ public class IntervalBuilder {
 
 	//merges intervals that should extend each other, deletes duplicates
 	public void cleanIntervals() {
-		mergeIntervals();
-		dedupIntervals();
+		intervals = mergeIntervals(intervals);
+		intervals = dedupIntervals(intervals);
 	}
 	
-	private void mergeIntervals() {
+	private Set<ActivityInterval> mergeIntervals(Set<ActivityInterval> toMerge) {
 		int maxMerges;
+		Set<ActivityInterval> mergedIntervals = toMerge;
 		do {
-			Set<ActivityInterval> mergedIntervals = new HashSet<>();
+			Set<ActivityInterval> updatedIntervals = new HashSet<>();
 			maxMerges = 0;
-			for(ActivityInterval i : intervals) {
+			for(ActivityInterval i : mergedIntervals) {
 				int merges = 0;
-				for(ActivityInterval m : mergedIntervals) {
+				for(ActivityInterval m : updatedIntervals) {
 					if(m.canMerge(i)) {
 						m.merge(i);
 						merges++;
 					}
 				}
-				if(merges==0) mergedIntervals.add(i);
+				if(merges==0) updatedIntervals.add(i);
 				maxMerges = Math.max(maxMerges, merges);
 			}
-			intervals = mergedIntervals;
+			mergedIntervals = updatedIntervals;
 		} while (maxMerges > 1); //if we merged the same interval with 2 or more intervals, those might be able to merge
+		return mergedIntervals;
 	}
 	
-	private void dedupIntervals() {
+	private Set<ActivityInterval> dedupIntervals(Set<ActivityInterval> toDedup) {
 		Set<ActivityInterval> deduped = new HashSet<>();
-		for(ActivityInterval i : intervals) {
+		for(ActivityInterval i : toDedup) {
 			boolean coverAny = false;
 			for(ActivityInterval d : deduped) {
 				if(d.covers(i)) {
@@ -127,7 +129,7 @@ public class IntervalBuilder {
 				deduped.add(i);
 			}
 		}
-		intervals = deduped;
+		return deduped;
 	}
 	
 	private Set<ActivityInterval> getTestingIntervals() {
@@ -138,6 +140,8 @@ public class IntervalBuilder {
 				.map(i->intervalToTestingIntervals(i))
 				.flatMap(Set::stream)
 				.collect(Collectors.toSet());
+		testingIntervals = mergeIntervals(testingIntervals);
+		testingIntervals = dedupIntervals(testingIntervals);
 		return testingIntervals;
 	}
 	
