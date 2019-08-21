@@ -60,6 +60,9 @@ public class ProcessingManager {
 	
 	public void removeMarkedData() {
 		Collection<User> users = remover.findUsersAffectedByRemoval();
+		if (users.isEmpty()) {
+			return;
+		}
 		Collection<String> zipsToReimport = remover.findAllZipsForUsers(users);
 		remover.deleteZipsToDelete();
 		remover.deleteAllDataForUsers(users);
